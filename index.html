@@ -3,38 +3,25 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ryo Dragneel · SYSTEM HUD</title>
+  <title>Ryo Dragneel · Dragon System HUD</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="stars"></div>
-  <main class="app-shell">
-    <header class="panel top-hud">
-      <div class="title-block">
-        <p class="eyebrow">Dragon System Interface</p>
+  <div class="bg-stars"></div><div class="bg-dragon"></div><div class="scan"></div>
+  <main class="shell">
+    <header class="hud top">
+      <div class="sigil"><span></span></div>
+      <div class="identity">
+        <p class="eyebrow">DRAGON SYSTEM · STATUS INTERFACE</p>
         <h1>Ryo Dragneel</h1>
-        <p class="subtitle"><span id="classLine"></span> · Level <span id="levelLine"></span> · <span id="raceLine"></span></p>
+        <p id="classLine" class="subtitle"></p>
       </div>
-      <section class="top-stats" aria-label="quick stats">
-        <div><span>AC</span><strong data-bind="ac"></strong></div>
-        <div><span>HP</span><strong data-bind="hp"></strong></div>
-        <div><span>CHA</span><strong data-bind="cha"></strong></div>
-        <div><span>PB</span><strong data-bind="pb"></strong></div>
-      </section>
+      <div class="quick" id="quickStats"></div>
     </header>
-
-    <nav id="nav" class="panel nav"></nav>
-
-    <section id="status" class="page"></section>
-    <section id="combat" class="page"></section>
-    <section id="magic" class="page"></section>
-    <section id="inventory" class="page"></section>
-    <section id="character" class="page"></section>
-    <section id="backstory" class="page"></section>
-    <section id="quests" class="page"></section>
-    <section id="library" class="page"></section>
-    <section id="settings" class="page"></section>
+    <nav class="hud nav" id="nav"></nav>
+    <section id="page" class="page"></section>
   </main>
+  <div id="modal" class="modal hidden"></div>
   <script src="script.js"></script>
 </body>
 </html>
