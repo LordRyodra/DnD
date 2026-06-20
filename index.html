@@ -1,27 +1,54 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ryo Dragneel · Dragon System HUD</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ryo · SYSTEM DnD HUD</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="bg-stars"></div><div class="bg-dragon"></div><div class="scan"></div>
-  <main class="shell">
-    <header class="hud top">
-      <div class="sigil"><span></span></div>
-      <div class="identity">
-        <p class="eyebrow">DRAGON SYSTEM · STATUS INTERFACE</p>
-        <h1>Ryo Dragneel</h1>
-        <p id="classLine" class="subtitle"></p>
+  <div class="stars"></div>
+  <main class="app-shell">
+    <header class="top-hud panel">
+      <div>
+        <p class="eyebrow">SYSTEM · STATUS INTERFACE</p>
+        <h1>Ryo</h1>
+        <p class="subtitle">Warlock 4 / Paladin 2 · Level 6 · DnD 5e 2014</p>
       </div>
-      <div class="quick" id="quickStats"></div>
+      <div class="top-stats">
+        <div><span>AC</span><strong data-bind="ac">16</strong></div>
+        <div><span>PB</span><strong>+3</strong></div>
+        <div><span>INIT</span><strong>+0</strong></div>
+        <div><span>SPEED</span><strong>9 m</strong></div>
+      </div>
     </header>
-    <nav class="hud nav" id="nav"></nav>
-    <section id="page" class="page"></section>
+
+    <nav class="nav panel" id="nav"></nav>
+
+    <section id="status" class="page active"></section>
+    <section id="combat" class="page"></section>
+    <section id="magic" class="page"></section>
+    <section id="inventory" class="page"></section>
+    <section id="character" class="page"></section>
+    <section id="quests" class="page"></section>
+    <section id="library" class="page"></section>
+    <section id="settings" class="page"></section>
   </main>
-  <div id="modal" class="modal hidden"></div>
+
+  <template id="counter-template">
+    <div class="counter panel inner-panel">
+      <div>
+        <p class="label"></p>
+        <p class="hint"></p>
+      </div>
+      <div class="counter-controls">
+        <button class="minus">−</button>
+        <strong class="value"></strong>
+        <button class="plus">+</button>
+      </div>
+    </div>
+  </template>
+
   <script src="script.js"></script>
 </body>
 </html>
