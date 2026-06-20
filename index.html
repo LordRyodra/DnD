@@ -1,54 +1,40 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ryo · SYSTEM DnD HUD</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ryo Dragneel · SYSTEM HUD</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="stars"></div>
   <main class="app-shell">
-    <header class="top-hud panel">
-      <div>
-        <p class="eyebrow">SYSTEM · STATUS INTERFACE</p>
-        <h1>Ryo</h1>
-        <p class="subtitle">Warlock 4 / Paladin 2 · Level 6 · DnD 5e 2014</p>
+    <header class="panel top-hud">
+      <div class="title-block">
+        <p class="eyebrow">Dragon System Interface</p>
+        <h1>Ryo Dragneel</h1>
+        <p class="subtitle"><span id="classLine"></span> · Level <span id="levelLine"></span> · <span id="raceLine"></span></p>
       </div>
-      <div class="top-stats">
-        <div><span>AC</span><strong data-bind="ac">16</strong></div>
-        <div><span>PB</span><strong>+3</strong></div>
-        <div><span>INIT</span><strong>+0</strong></div>
-        <div><span>SPEED</span><strong>9 m</strong></div>
-      </div>
+      <section class="top-stats" aria-label="quick stats">
+        <div><span>AC</span><strong data-bind="ac"></strong></div>
+        <div><span>HP</span><strong data-bind="hp"></strong></div>
+        <div><span>CHA</span><strong data-bind="cha"></strong></div>
+        <div><span>PB</span><strong data-bind="pb"></strong></div>
+      </section>
     </header>
 
-    <nav class="nav panel" id="nav"></nav>
+    <nav id="nav" class="panel nav"></nav>
 
-    <section id="status" class="page active"></section>
+    <section id="status" class="page"></section>
     <section id="combat" class="page"></section>
     <section id="magic" class="page"></section>
     <section id="inventory" class="page"></section>
     <section id="character" class="page"></section>
+    <section id="backstory" class="page"></section>
     <section id="quests" class="page"></section>
     <section id="library" class="page"></section>
     <section id="settings" class="page"></section>
   </main>
-
-  <template id="counter-template">
-    <div class="counter panel inner-panel">
-      <div>
-        <p class="label"></p>
-        <p class="hint"></p>
-      </div>
-      <div class="counter-controls">
-        <button class="minus">−</button>
-        <strong class="value"></strong>
-        <button class="plus">+</button>
-      </div>
-    </div>
-  </template>
-
   <script src="script.js"></script>
 </body>
 </html>
