@@ -67,23 +67,8 @@ body {
 }
 
 .hero::after {
-  content: "";
-  position: absolute;
-  left: 46%;
-  top: 50%;
-  width: 430px;
-  height: 430px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  border: 1px solid rgba(200, 167, 106, 0.16);
-  box-shadow:
-    0 0 0 36px rgba(200, 167, 106, 0.025),
-    0 0 80px rgba(0, 212, 136, 0.08),
-    inset 0 0 70px rgba(0, 0, 0, 0.6);
-  opacity: 0.75;
-  pointer-events: none;
+  display: none;
 }
-
 .hero-content {
   position: relative;
   z-index: 3;
@@ -157,9 +142,9 @@ h1 {
 .ryo-portrait {
   position: absolute;
   z-index: 2;
-  right: 40px;
+  right: 70px;
   bottom: -85px;
-  height: 610px;
+  height: 600px;
   max-width: 64%;
   object-fit: contain;
   object-position: right bottom;
