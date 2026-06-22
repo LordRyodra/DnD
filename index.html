@@ -3,63 +3,186 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dragon Archive — Ryo Header Test</title>
+  <title>Dragon Archive V1 — Ryo</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <main class="archive-page">
-    <section class="hero">
-      <div class="hero-background"></div>
-      
-      <img src="assets/archive-header-bg.png" class="hero-bg-art" alt="">
-      <img src="assets/rune-circle-overlay.png" class="rune-circle" alt="">
-      <img src="assets/ryo-base-healthy.png" class="ryo-portrait" alt="Ryo Dragneel">
-      
-      <div class="hero-content">
-        <p class="archive-label">Dragon Archive · Personal System</p>
-        <h1>Ryo Dragneel</h1>
-        <p class="subtitle">Warlock 5 / Barbarian 2 · Level 7</p>
-        <p class="identity">Incubus-Elf · Dragon Child · Last Wall</p>
-
-        <div class="resource-row">
-          <div class="resource-ring">
-            <span class="resource-label">AC</span>
-            <strong>16</strong>
-          </div>
-
-          <div class="resource-ring">
-            <span class="resource-label">HP</span>
-            <strong>57</strong>
-          </div>
-
-          <div class="resource-ring">
-            <span class="resource-label">PB</span>
-            <strong>+3</strong>
-          </div>
-        </div>
+<body class="archive-state form-base damage-healthy">
+  <main class="archive-page" data-app>
+    <header class="hero archive-frame" aria-labelledby="archive-title">
+      <img src="assets/archive-header-bg.png" class="hero-bg-art" alt="" />
+      <div class="hero-vignette" aria-hidden="true"></div>
+      <div class="archive-sigil" aria-hidden="true">
+        <span></span><span></span><span></span>
       </div>
 
-      <img src="assets/ryo-base-healthy.png" alt="Ryo Dragneel" class="ryo-portrait">
+      <img id="ryoPortrait" src="assets/ryo-base-healthy.png" class="ryo-portrait" alt="Ryo Dragneel" />
+
+      <div class="hero-content">
+        <p class="archive-label">Dragon Archive · Personal Artefact</p>
+        <h1 id="archive-title">Ryo Dragneel</h1>
+        <p class="subtitle" data-field="buildLine">Warlock 5 / Barbarian 2 · Level 7</p>
+        <p class="identity" data-field="identityLine">Incubus-Elf · Dragon Child · Last Wall</p>
+
+        <div class="hero-quote">
+          <span>“An mir kommt ihr nicht vorbei.”</span>
+        </div>
+
+        <div class="resource-row" id="heroRings" aria-label="Primary resources"></div>
+      </div>
+
+      <aside class="hero-state-panel" aria-label="Current manifestation">
+        <span class="state-kicker">Current Manifestation</span>
+        <strong id="manifestationLabel">Base Form · Healthy</strong>
+        <small id="manifestationNote">Silent guardian. Controlled presence.</small>
+      </aside>
+    </header>
+
+    <nav class="archive-tabs" aria-label="Dragon Archive sections">
+      <button class="tab-button is-active" type="button" data-tab="status">Status</button>
+      <button class="tab-button" type="button" data-tab="combat">Combat</button>
+      <button class="tab-button" type="button" data-tab="magic">Magic</button>
+      <button class="tab-button" type="button" data-tab="character">Character</button>
+      <button class="tab-button" type="button" data-tab="settings">Settings</button>
+    </nav>
+
+    <section class="tab-panel is-active" data-panel="status">
+      <div class="status-layout">
+        <article class="panel soul-panel">
+          <div class="panel-kicker">Soul Layer</div>
+          <h2>Bearer State</h2>
+          <p class="panel-copy">The archive reads Ryo first, then the numbers. Damage, rage and inner forces alter the artefact surface before they become mechanics.</p>
+
+          <div class="state-readout">
+            <div>
+              <span>Form</span>
+              <strong id="formReadout">Base Form</strong>
+            </div>
+            <div>
+              <span>Damage</span>
+              <strong id="damageReadout">Healthy</strong>
+            </div>
+            <div>
+              <span>Control</span>
+              <strong id="controlReadout">Stable</strong>
+            </div>
+          </div>
+
+          <label class="select-label" for="formSelect">Manifestation Override</label>
+          <select id="formSelect" class="archive-select">
+            <option value="base">Base Form</option>
+            <option value="rage">Rage / Draconic Shift</option>
+            <option value="incubus1">Incubus Emergence I</option>
+            <option value="incubus2">Incubus Emergence II</option>
+            <option value="incubus3">Incubus Emergence III</option>
+          </select>
+        </article>
+
+        <article class="panel resources-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-kicker">Session Core</div>
+              <h2>Vital Resources</h2>
+            </div>
+            <button class="ghost-button" type="button" id="longRestButton">Long Rest</button>
+          </div>
+          <div class="resource-cards" id="resourceCards"></div>
+        </article>
+
+        <article class="panel priority-panel">
+          <div class="panel-kicker">Battle Anchors</div>
+          <h2>Used Often</h2>
+          <div class="action-grid" id="actionCards"></div>
+        </article>
+
+        <article class="panel attribute-panel">
+          <div class="panel-kicker">Body / Mind / Will</div>
+          <h2>Attributes</h2>
+          <div class="attribute-grid" id="attributeGrid"></div>
+        </article>
+
+        <article class="panel trace-panel">
+          <div class="panel-kicker">Archive Trace</div>
+          <h2>Current Echoes</h2>
+          <ul class="trace-list" id="traceList"></ul>
+        </article>
+      </div>
     </section>
 
-    <section class="test-grid">
-      <article class="panel">
-        <h2>Vital Core</h2>
-        <p>HP, Temp HP and damage state will live here.</p>
-      </article>
+    <section class="tab-panel" data-panel="combat">
+      <div class="panel-grid two-col">
+        <article class="panel">
+          <div class="panel-kicker">Combat Layer</div>
+          <h2>Prepared Structure</h2>
+          <p class="panel-copy">This tab is reserved for attacks, rage state, conditions, damage notes and weapon-specific panels. It is intentionally not filled with every rule yet.</p>
+          <div class="action-grid" id="combatActionCards"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-kicker">Future Asset Hook</div>
+          <h2>Draconic Shift</h2>
+          <p class="panel-copy">When Rage is active, this section can later trigger altered frames, hotter colors, cracks, scale motifs and a Rage portrait variant.</p>
+        </article>
+      </div>
+    </section>
 
-      <article class="panel">
-        <h2>Rage</h2>
-        <p>Draconic Shift will later change Ryo and the archive.</p>
-      </article>
+    <section class="tab-panel" data-panel="magic">
+      <div class="panel-grid two-col">
+        <article class="panel">
+          <div class="panel-kicker">Pact Magic</div>
+          <h2>Warlock Core</h2>
+          <div class="magic-list" id="magicList"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-kicker">Future Layer</div>
+          <h2>Hex / Fiend / Incubus</h2>
+          <p class="panel-copy">This tab is prepared for spell cards, Hex target traces, invocation switching and incubus heritage magic without turning the archive into a generic spell list.</p>
+        </article>
+      </div>
+    </section>
 
-      <article class="panel">
-        <h2>Pact Magic</h2>
-        <p>Warlock slots, Hex and Fiend traces.</p>
-      </article>
+    <section class="tab-panel" data-panel="character">
+      <div class="panel-grid two-col">
+        <article class="panel">
+          <div class="panel-kicker">Identity Layer</div>
+          <h2>Who is Ryo?</h2>
+          <div class="identity-stack" id="identityStack"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-kicker">Expandable Archive</div>
+          <h2>Later Sections</h2>
+          <ul class="trace-list">
+            <li>Backstory echoes</li>
+            <li>Oaths, bonds and scars</li>
+            <li>Campaign notes</li>
+            <li>Library and knowledge fragments</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="tab-panel" data-panel="settings">
+      <div class="panel-grid two-col">
+        <article class="panel">
+          <div class="panel-kicker">Local Archive</div>
+          <h2>Stored State</h2>
+          <p class="panel-copy">Resource values are saved in this browser with localStorage. Reset only affects this local copy.</p>
+          <button class="danger-button" type="button" id="resetButton">Reset Local State</button>
+        </article>
+        <article class="panel">
+          <div class="panel-kicker">Assets</div>
+          <h2>Replaceable Layers</h2>
+          <ul class="asset-list">
+            <li><code>assets/archive-header-bg.png</code></li>
+            <li><code>assets/ryo-base-healthy.png</code></li>
+            <li><code>assets/ryo-base-wounded.png</code> later</li>
+            <li><code>assets/ryo-rage-healthy.png</code> later</li>
+            <li><code>assets/panel-frame-*.png</code> later</li>
+          </ul>
+        </article>
+      </div>
     </section>
   </main>
 
+  <script src="data.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
