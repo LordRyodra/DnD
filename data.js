@@ -11,7 +11,8 @@ window.DRAGON_ARCHIVE_DATA = {
     passivePerception: 16,
     movement: "9m",
     spellSaveDC: 16,
-    spellAttackBonus: 8
+    spellAttackBonus: 8,
+    savingThrowProficiencies: ["WIS", "CHA"]
   },
 
   assets: {
@@ -145,6 +146,15 @@ window.DRAGON_ARCHIVE_DATA = {
     WIS: 16,
     CHA: 20
   },
+
+
+  skills: [
+    { name: "Athletics", ability: "STR", bonus: "+6", note: "Strength + proficiency" },
+    { name: "Intimidation", ability: "CHA", bonus: "+8", note: "Charisma + proficiency" },
+    { name: "Animal Handling", ability: "WIS", bonus: "+6", note: "Wisdom + proficiency" },
+    { name: "Perception", ability: "WIS", bonus: "+6", note: "Wisdom + proficiency" },
+    { name: "Persuasion", ability: "CHA", bonus: "+8", note: "Charisma + proficiency" }
+  ],
 
   magic: [
     { name: "Spell Save DC", value: "16" },

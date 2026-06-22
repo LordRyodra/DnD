@@ -358,20 +358,45 @@ function renderActions(targetId) {
   `).join("");
 }
 
+function formatModifier(value) {
+  return value >= 0 ? `+${value}` : `${value}`;
+}
+
+function abilityModifier(score) {
+  return Math.floor((score - 10) / 2);
+}
+
 function renderAttributes() {
   const container = document.querySelector("#attributeGrid");
   if (!container) return;
+  const proficiencies = new Set(DATA.character.savingThrowProficiencies || []);
+  const proficiencyBonus = DATA.character.proficiencyBonus || 0;
+
   container.innerHTML = Object.entries(DATA.attributes).map(([key, value]) => {
-    const modifier = Math.floor((value - 10) / 2);
-    const modifierText = modifier >= 0 ? `+${modifier}` : `${modifier}`;
+    const proficient = proficiencies.has(key);
+    const save = abilityModifier(value) + (proficient ? proficiencyBonus : 0);
     return `
-      <article class="attribute-card">
+      <article class="attribute-card ${proficient ? "is-proficient" : ""}">
         <span>${key}</span>
-        <strong>${value}</strong>
-        <small>${modifierText}</small>
+        <strong>${formatModifier(save)}</strong>
+        <small>${proficient ? "prof" : "base"}</small>
       </article>
     `;
   }).join("");
+}
+
+function renderSkills() {
+  const container = document.querySelector("#skillsList");
+  if (!container) return;
+  container.innerHTML = (DATA.skills || []).map((skill) => `
+    <article class="skill-row" title="${skill.note || ""}">
+      <span>${skill.name}</span>
+      <small>${skill.ability}</small>
+      <strong>${skill.bonus}</strong>
+    </article>
+  `).join("");
+
+  setText('[data-field="passivePerception"]', DATA.character.passivePerception);
 }
 
 function renderMagic() {
@@ -539,17 +564,31 @@ function setActiveTab(tabName) {
   });
 }
 
+function setResourceSilently(id, value) {
+  const resource = getResource(id);
+  if (!resource) return;
+  state.resources[id] = clamp(value, resource.min, resource.max);
+}
+
+function applyDamage(amount) {
+  const currentTemp = getResourceValue("tempHp");
+  const absorbed = Math.min(currentTemp, amount);
+  const remaining = amount - absorbed;
+  setResourceSilently("tempHp", currentTemp - absorbed);
+  setResourceSilently("hp", getResourceValue("hp") - remaining);
+}
+
 function applyBulkHp(mode) {
   const input = document.querySelector("#hpAmountInput");
   const amount = clamp(Number(input?.value || 0), 0, 999);
   if (!amount && mode !== "temp") return;
 
-  if (mode === "damage") setResourceValue("hp", getResourceValue("hp") - amount);
+  if (mode === "damage") applyDamage(amount);
   if (mode === "heal") {
-    setResourceValue("hp", getResourceValue("hp") + amount);
+    setResourceSilently("hp", getResourceValue("hp") + amount);
     if (getResourceValue("hp") > 0) state.deathSaves = { successes: 0, failures: 0 };
   }
-  if (mode === "temp") setResourceValue("tempHp", amount);
+  if (mode === "temp") setResourceSilently("tempHp", amount);
 
   if (input) input.value = "";
   saveState();
@@ -670,6 +709,7 @@ function render() {
   renderActions("#actionCards");
   renderActions("#combatActionCards");
   renderAttributes();
+  renderSkills();
   renderMagic();
   renderIdentity();
   renderTraces();

@@ -135,36 +135,6 @@
           <p id="deathGateText">Balanced between life and death. Success pulls left, failure pulls right.</p>
         </article>
 
-        <article class="panel focus-panel span-3 row-2">
-          <div class="panel-kicker">Focus & Conditions</div>
-          <h2>Session Flags</h2>
-          <label class="check-row">
-            <span class="focus-icon">◇</span>
-            <span>Inspiration</span>
-            <input id="inspirationCheck" type="checkbox" />
-          </label>
-          <div class="exhaustion-row" id="exhaustionDots"></div>
-          <div class="condition-buttons">
-            <button type="button" data-toggle-resource="hex">Hex</button>
-            <button type="button" data-adjust-resource="exhaustion" data-step="1">Exhaustion +</button>
-            <button type="button" data-adjust-resource="exhaustion" data-step="-1">Exhaustion −</button>
-          </div>
-        </article>
-
-        <article class="panel hit-dice span-3">
-          <div class="panel-kicker">Hit Dice</div>
-          <h2>Hit Dice / Recovery Reserve</h2>
-          <div class="dice-row"><span>d8</span><strong>5</strong><em>/ 5</em></div>
-          <div class="dice-row"><span>d12</span><strong>2</strong><em>/ 2</em></div>
-        </article>
-
-        <article class="panel oath-panel span-3">
-          <div class="panel-kicker">Sacred / Pact Remnants</div>
-          <h2>Divine Sense / Danger Sense</h2>
-          <div class="meter-row"><span>Divine Sense</span><strong>5 / 5</strong></div>
-          <div class="meter-row"><span>Danger Sense</span><strong>active</strong></div>
-        </article>
-
         <article class="panel spell-panel span-3">
           <div class="panel-kicker">Spell Slots</div>
           <h2>Pact Magic</h2>
@@ -182,6 +152,37 @@
           </div>
         </article>
 
+        <article class="panel focus-panel session-flags-panel span-3 row-2">
+          <div class="panel-kicker">Focus & Conditions</div>
+          <h2>Session Flags</h2>
+          <label class="check-row">
+            <span class="focus-icon">◇</span>
+            <span>Inspiration</span>
+            <input id="inspirationCheck" type="checkbox" />
+          </label>
+          <div class="exhaustion-row" id="exhaustionDots"></div>
+          <div class="condition-buttons">
+            <button type="button" data-toggle-resource="hex">Hex</button>
+            <button type="button" data-adjust-resource="exhaustion" data-step="1">Exhaustion +</button>
+            <button type="button" data-adjust-resource="exhaustion" data-step="-1">Exhaustion −</button>
+          </div>
+        </article>
+
+        <article class="panel instinct-panel span-3">
+          <div class="panel-kicker">Instinct Layer</div>
+          <h2>Guardian Instincts</h2>
+          <div class="meter-row"><span>Danger Sense</span><strong>active</strong></div>
+          <div class="meter-row"><span>Reckless Attack</span><strong>available</strong></div>
+          <div class="meter-row"><span>Fey Ancestry</span><strong>passive</strong></div>
+        </article>
+
+        <article class="panel hit-dice span-3">
+          <div class="panel-kicker">Hit Dice</div>
+          <h2>Hit Dice / Recovery Reserve</h2>
+          <div class="dice-row"><span>d8</span><strong>5</strong><em>/ 5</em></div>
+          <div class="dice-row"><span>d12</span><strong>2</strong><em>/ 2</em></div>
+        </article>
+
         <article class="panel attacks-panel span-6 row-3">
           <div class="panel-kicker">Attacks</div>
           <h2>Battle Anchors</h2>
@@ -189,12 +190,22 @@
         </article>
 
         <article class="panel saves-panel span-3 row-3">
-          <div class="panel-kicker">Saves</div>
+          <div class="panel-kicker">Saving Throws</div>
           <h2>Body / Mind / Will</h2>
           <div class="save-grid" id="attributeGrid"></div>
         </article>
 
-        <article class="panel active-panel span-3 row-3">
+        <article class="panel skills-panel span-3 row-3">
+          <div class="panel-kicker">Skills / Senses</div>
+          <h2>Session Checks</h2>
+          <div class="skills-list" id="skillsList"></div>
+          <div class="passive-sense">
+            <span>Passive Perception</span>
+            <strong data-field="passivePerception">16</strong>
+          </div>
+        </article>
+
+        <article class="panel active-panel compact-seals span-4 row-2">
           <div class="panel-kicker">Active Conditions</div>
           <h2>Condition Seals</h2>
           <div class="active-condition-list" id="activeConditionList"></div>
@@ -203,19 +214,15 @@
         <article class="panel features-panel span-4 row-2">
           <div class="panel-kicker">Features</div>
           <h2>Frequently Needed</h2>
-          <div class="feature-stack">
-            <article><span>Feat</span><strong>Great Weapon Master</strong><p>Before attack: −5 to hit for +10 damage.</p></article>
-            <article><span>Style</span><strong>Great Weapon Fighting</strong><p>Reroll 1 or 2 on weapon damage dice.</p></article>
-          </div>
-        </article>
-
-        <article class="panel traits-panel span-4 row-2">
-          <div class="panel-kicker">Racial Traits</div>
-          <h2>Bloodlines</h2>
-          <div class="feature-stack compact">
-            <article><strong>Darkvision</strong><p>18m</p></article>
-            <article><strong>Fey Ancestry</strong><p>Advantage against charm, magic cannot put him to sleep.</p></article>
-            <article><strong>Trance</strong><p>6h sleep / meditative rest.</p></article>
+          <div class="feature-stack feature-tooltip-stack">
+            <details>
+              <summary><span>Feat</span><strong>Great Weapon Master</strong></summary>
+              <p>Before making a melee attack with a heavy weapon: −5 to hit for +10 damage.</p>
+            </details>
+            <details>
+              <summary><span>Style</span><strong>Great Weapon Fighting</strong></summary>
+              <p>When rolling weapon damage with a two-handed or versatile melee weapon, reroll 1 or 2 on the damage die.</p>
+            </details>
           </div>
         </article>
 
@@ -228,7 +235,7 @@
 
       <section class="identity-strip archive-frame" aria-label="Identity traces">
         <article><span>Dragon Child</span><strong>Blood of the Dragon.</strong><small>Power of the Pact. Soul of the Incubus.</small></article>
-        <article><span>Patron</span><strong>The Fiend</strong><small>Pact of the Invoker. Fiend chain marked.</small></article>
+        <article><span>Patron</span><strong>The Fiend</strong><small>Fiend Patron. Pact of the Invoker.</small></article>
         <article><span>Truename</span><strong>Marked</strong><small>The name whispers in forgotten tongues.</small></article>
       </section>
     </section>
