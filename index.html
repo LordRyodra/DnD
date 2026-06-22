@@ -8,27 +8,43 @@
 </head>
 <body class="archive-state form-base damage-healthy">
   <main class="archive-page" data-app>
-    <header class="hero archive-frame" aria-labelledby="archive-title">
+    <header class="archive-hero archive-frame" aria-labelledby="archive-title">
       <img src="assets/archive-header-bg.png" class="hero-bg-art" alt="" />
       <div class="hero-vignette" aria-hidden="true"></div>
-      <div class="archive-sigil" aria-hidden="true">
-        <span></span><span></span><span></span>
-      </div>
+      <div class="hero-dragon-eye" aria-hidden="true"></div>
 
+      <aside class="side-emblem" aria-hidden="true">
+        <div class="emblem-line"></div>
+        <div class="emblem-dragon">✦</div>
+        <div class="emblem-rune">𐌷</div>
+      </aside>
+
+      <div class="portrait-ring" aria-hidden="true"><span></span><span></span><span></span></div>
       <img id="ryoPortrait" src="assets/ryo-base-healthy.png" class="ryo-portrait" alt="Ryo Dragneel" />
 
-      <div class="hero-content">
-        <p class="archive-label">Dragon Archive · Personal Artefact</p>
+      <section class="hero-content">
+        <p class="archive-label">Dragon Archive <span>|</span> Personal System</p>
         <h1 id="archive-title">Ryo Dragneel</h1>
         <p class="subtitle" data-field="buildLine">Warlock 5 / Barbarian 2 · Level 7</p>
         <p class="identity" data-field="identityLine">Incubus-Elf · Dragon Child · Last Wall</p>
 
-        <div class="hero-quote">
-          <span>“An mir kommt ihr nicht vorbei.”</span>
+        <div class="manifestation-controls" aria-label="Manifestation controls">
+          <button type="button" class="manifest-button" data-form-action="base">
+            <span>Base</span>
+            <small>controlled</small>
+          </button>
+          <button type="button" class="manifest-button" data-form-action="rage" id="rageButton">
+            <span>Rage</span>
+            <small id="rageChargeText">2 / 2</small>
+          </button>
+          <button type="button" class="manifest-button" data-form-action="incubus" id="incubusButton">
+            <span>Incubus</span>
+            <small id="incubusStageText">stage 0</small>
+          </button>
         </div>
+      </section>
 
-        <div class="resource-row" id="heroRings" aria-label="Primary resources"></div>
-      </div>
+      <section class="hero-rings" id="heroRings" aria-label="Primary resources"></section>
 
       <aside class="hero-state-panel" aria-label="Current manifestation">
         <span class="state-kicker">Current Manifestation</span>
@@ -38,74 +54,159 @@
     </header>
 
     <nav class="archive-tabs" aria-label="Dragon Archive sections">
-      <button class="tab-button is-active" type="button" data-tab="status">Status</button>
-      <button class="tab-button" type="button" data-tab="combat">Combat</button>
-      <button class="tab-button" type="button" data-tab="magic">Magic</button>
-      <button class="tab-button" type="button" data-tab="character">Character</button>
-      <button class="tab-button" type="button" data-tab="settings">Settings</button>
+      <button class="tab-button is-active" type="button" data-tab="status"><span>◈</span>Status</button>
+      <button class="tab-button" type="button" data-tab="combat"><span>⚔</span>Combat</button>
+      <button class="tab-button" type="button" data-tab="magic"><span>✦</span>Magic</button>
+      <button class="tab-button" type="button" data-tab="character"><span>♛</span>Character</button>
+      <button class="tab-button" type="button" data-tab="settings"><span>⚙</span>Settings</button>
     </nav>
 
     <section class="tab-panel is-active" data-panel="status">
-      <div class="status-layout">
-        <article class="panel soul-panel">
-          <div class="panel-kicker">Soul Layer</div>
-          <h2>Bearer State</h2>
-          <p class="panel-copy">The archive reads Ryo first, then the numbers. Damage, rage and inner forces alter the artefact surface before they become mechanics.</p>
-
-          <div class="state-readout">
+      <div class="status-grid reference-grid">
+        <article class="panel vital-core span-4 row-2">
+          <div class="panel-title-row">
             <div>
-              <span>Form</span>
-              <strong id="formReadout">Base Form</strong>
+              <div class="panel-kicker">Vital Core</div>
+              <h2>Life Thread</h2>
             </div>
-            <div>
-              <span>Damage</span>
-              <strong id="damageReadout">Healthy</strong>
-            </div>
-            <div>
-              <span>Control</span>
-              <strong id="controlReadout">Stable</strong>
-            </div>
+            <button class="edit-chip" type="button" data-focus-resource="hp">edit</button>
           </div>
 
-          <label class="select-label" for="formSelect">Manifestation Override</label>
-          <select id="formSelect" class="archive-select">
-            <option value="base">Base Form</option>
-            <option value="rage">Rage / Draconic Shift</option>
-            <option value="incubus1">Incubus Emergence I</option>
-            <option value="incubus2">Incubus Emergence II</option>
-            <option value="incubus3">Incubus Emergence III</option>
-          </select>
-        </article>
-
-        <article class="panel resources-panel">
-          <div class="panel-header">
-            <div>
-              <div class="panel-kicker">Session Core</div>
-              <h2>Vital Resources</h2>
+          <div class="vital-body">
+            <div class="large-hp-ring" id="largeHpRing" aria-label="Current hit points">
+              <span class="ring-value" id="largeHpValue">57</span>
+              <span class="ring-max" id="largeHpMax">/57</span>
+              <span class="ring-label">HP</span>
             </div>
-            <button class="ghost-button" type="button" id="longRestButton">Long Rest</button>
+            <div class="vital-side">
+              <div class="mini-orb">
+                <strong id="tempHpValue">0</strong>
+                <span>Temp HP</span>
+              </div>
+              <p id="hpFlavor">Green at full health, sinking through gold into deep red near death.</p>
+              <div class="quick-controls compact-controls">
+                <button type="button" data-adjust-resource="hp" data-step="-1">−</button>
+                <button type="button" data-adjust-resource="hp" data-step="1">+</button>
+                <button type="button" data-adjust-resource="tempHp" data-step="1">Temp +</button>
+              </div>
+            </div>
           </div>
-          <div class="resource-cards" id="resourceCards"></div>
         </article>
 
-        <article class="panel priority-panel">
-          <div class="panel-kicker">Battle Anchors</div>
-          <h2>Used Often</h2>
-          <div class="action-grid" id="actionCards"></div>
+        <article class="panel death-gate span-4 row-2">
+          <div class="panel-title-row">
+            <div>
+              <div class="panel-kicker">Death Gate</div>
+              <h2>Not Yet Closed</h2>
+            </div>
+            <span class="small-glyph">✧</span>
+          </div>
+          <div class="death-track">
+            <span class="track-label">Successes</span>
+            <div class="death-dots success-dots"><button>✓</button><button>✓</button><button>✓</button></div>
+            <span class="track-label">Failures</span>
+            <div class="death-dots failure-dots"><button>×</button><button>×</button><button>×</button></div>
+          </div>
+          <div class="danger-gradient"><span id="deathPointer"></span></div>
+          <p>Hold on. The gate is not yet closed.</p>
         </article>
 
-        <article class="panel attribute-panel">
-          <div class="panel-kicker">Body / Mind / Will</div>
-          <h2>Attributes</h2>
-          <div class="attribute-grid" id="attributeGrid"></div>
+        <article class="panel focus-panel span-4 row-2">
+          <div class="panel-kicker">Focus & Conditions</div>
+          <h2>Session Flags</h2>
+          <label class="check-row">
+            <span class="focus-icon">◇</span>
+            <span>Inspiration</span>
+            <input id="inspirationCheck" type="checkbox" />
+          </label>
+          <div class="exhaustion-row" id="exhaustionDots"></div>
+          <div class="condition-buttons">
+            <button type="button" data-toggle-resource="hex">Hex</button>
+            <button type="button" data-adjust-resource="exhaustion" data-step="1">Exhaustion +</button>
+            <button type="button" data-adjust-resource="exhaustion" data-step="-1">Exhaustion −</button>
+          </div>
         </article>
 
-        <article class="panel trace-panel">
-          <div class="panel-kicker">Archive Trace</div>
-          <h2>Current Echoes</h2>
-          <ul class="trace-list" id="traceList"></ul>
+        <article class="panel hit-dice span-4">
+          <div class="panel-kicker">Hit Dice</div>
+          <h2>Recovery Reserve</h2>
+          <div class="dice-row"><span>d8</span><strong>5</strong><em>/ 5</em></div>
+          <div class="dice-row"><span>d12</span><strong>2</strong><em>/ 2</em></div>
+        </article>
+
+        <article class="panel oath-panel span-4">
+          <div class="panel-kicker">Sacred / Pact Remnants</div>
+          <h2>Protective Fragments</h2>
+          <div class="meter-row"><span>Divine Sense</span><strong>5 / 5</strong></div>
+          <div class="meter-row"><span>Danger Sense</span><strong>active</strong></div>
+        </article>
+
+        <article class="panel spell-panel span-4">
+          <div class="panel-kicker">Spell Slots</div>
+          <h2>Pact Magic</h2>
+          <div class="spell-slot-row">
+            <span>Warlock Lv. 3</span>
+            <button type="button" data-adjust-resource="pactSlots" data-step="-1">−</button>
+            <strong id="pactSlotReadout">2 / 2</strong>
+            <button type="button" data-adjust-resource="pactSlots" data-step="1">+</button>
+          </div>
+          <div class="spell-slot-row">
+            <span>Rage Uses</span>
+            <button type="button" data-adjust-resource="rage" data-step="-1">−</button>
+            <strong id="rageReadout">2 / 2</strong>
+            <button type="button" data-adjust-resource="rage" data-step="1">+</button>
+          </div>
+        </article>
+
+        <article class="panel attacks-panel span-5 row-3">
+          <div class="panel-kicker">Attacks</div>
+          <h2>Battle Anchors</h2>
+          <div class="attack-list" id="actionCards"></div>
+        </article>
+
+        <article class="panel saves-panel span-3 row-3">
+          <div class="panel-kicker">Saves</div>
+          <h2>Body / Mind / Will</h2>
+          <div class="save-grid" id="attributeGrid"></div>
+        </article>
+
+        <article class="panel active-panel span-4 row-3">
+          <div class="panel-kicker">Active Conditions</div>
+          <h2>Archive Echoes</h2>
+          <div class="active-condition-list" id="activeConditionList"></div>
+        </article>
+
+        <article class="panel features-panel span-4 row-2">
+          <div class="panel-kicker">Features</div>
+          <h2>Frequently Needed</h2>
+          <div class="feature-stack">
+            <article><span>Feat</span><strong>Great Weapon Master</strong><p>Before attack: −5 to hit for +10 damage.</p></article>
+            <article><span>Style</span><strong>Great Weapon Fighting</strong><p>Reroll 1 or 2 on weapon damage dice.</p></article>
+          </div>
+        </article>
+
+        <article class="panel traits-panel span-4 row-2">
+          <div class="panel-kicker">Racial Traits</div>
+          <h2>Bloodlines</h2>
+          <div class="feature-stack compact">
+            <article><strong>Darkvision</strong><p>18m</p></article>
+            <article><strong>Fey Ancestry</strong><p>Advantage against charm, magic cannot put him to sleep.</p></article>
+            <article><strong>Trance</strong><p>6h sleep / meditative rest.</p></article>
+          </div>
+        </article>
+
+        <article class="panel notes-panel span-4 row-2">
+          <div class="panel-kicker">Inspirations & Notes</div>
+          <h2>Quick Notes</h2>
+          <textarea id="quickNotes" placeholder="Quick notes..." aria-label="Quick notes"></textarea>
         </article>
       </div>
+
+      <section class="identity-strip archive-frame" aria-label="Identity traces">
+        <article><span>Dragon Child</span><strong>Blood of the Dragon.</strong><small>Power of the Pact. Soul of the Incubus.</small></article>
+        <article><span>Patron</span><strong>The Fiend</strong><small>Pact of the Chain. Pact of the Invoker.</small></article>
+        <article><span>Truename</span><strong>Marked</strong><small>The name whispers in forgotten tongues.</small></article>
+      </section>
     </section>
 
     <section class="tab-panel" data-panel="combat">
@@ -113,13 +214,13 @@
         <article class="panel">
           <div class="panel-kicker">Combat Layer</div>
           <h2>Prepared Structure</h2>
-          <p class="panel-copy">This tab is reserved for attacks, rage state, conditions, damage notes and weapon-specific panels. It is intentionally not filled with every rule yet.</p>
-          <div class="action-grid" id="combatActionCards"></div>
+          <p class="panel-copy">Reserved for attacks, rage state, conditions, damage notes and weapon-specific panels. The Status tab stays focused on the live session overlay.</p>
+          <div class="attack-list" id="combatActionCards"></div>
         </article>
         <article class="panel">
-          <div class="panel-kicker">Future Asset Hook</div>
-          <h2>Draconic Shift</h2>
-          <p class="panel-copy">When Rage is active, this section can later trigger altered frames, hotter colors, cracks, scale motifs and a Rage portrait variant.</p>
+          <div class="panel-kicker">Draconic Shift</div>
+          <h2>Rage Visual Hook</h2>
+          <p class="panel-copy">Pressing Rage consumes one Rage use when entering the form and pushes the archive toward amber pressure, red cracks and hotter resource light.</p>
         </article>
       </div>
     </section>
@@ -132,9 +233,9 @@
           <div class="magic-list" id="magicList"></div>
         </article>
         <article class="panel">
-          <div class="panel-kicker">Future Layer</div>
-          <h2>Hex / Fiend / Incubus</h2>
-          <p class="panel-copy">This tab is prepared for spell cards, Hex target traces, invocation switching and incubus heritage magic without turning the archive into a generic spell list.</p>
+          <div class="panel-kicker">Hex / Fiend / Incubus</div>
+          <h2>Future Spellbook Layer</h2>
+          <p class="panel-copy">Prepared for spell cards, Hex target traces, invocation switching and incubus heritage magic without becoming a generic spell list.</p>
         </article>
       </div>
     </section>
@@ -147,14 +248,9 @@
           <div class="identity-stack" id="identityStack"></div>
         </article>
         <article class="panel">
-          <div class="panel-kicker">Expandable Archive</div>
-          <h2>Later Sections</h2>
-          <ul class="trace-list">
-            <li>Backstory echoes</li>
-            <li>Oaths, bonds and scars</li>
-            <li>Campaign notes</li>
-            <li>Library and knowledge fragments</li>
-          </ul>
+          <div class="panel-kicker">Archive Trace</div>
+          <h2>What the Archive Remembers</h2>
+          <ul class="trace-list" id="traceList"></ul>
         </article>
       </div>
     </section>
@@ -164,8 +260,11 @@
         <article class="panel">
           <div class="panel-kicker">Local Archive</div>
           <h2>Stored State</h2>
-          <p class="panel-copy">Resource values are saved in this browser with localStorage. Reset only affects this local copy.</p>
-          <button class="danger-button" type="button" id="resetButton">Reset Local State</button>
+          <p class="panel-copy">Resource values, active form, inspiration and quick notes are saved in this browser with localStorage.</p>
+          <div class="settings-actions">
+            <button class="ghost-button" type="button" id="longRestButton">Long Rest</button>
+            <button class="danger-button" type="button" id="resetButton">Reset Local State</button>
+          </div>
         </article>
         <article class="panel">
           <div class="panel-kicker">Assets</div>
@@ -175,6 +274,7 @@
             <li><code>assets/ryo-base-healthy.png</code></li>
             <li><code>assets/ryo-base-wounded.png</code> later</li>
             <li><code>assets/ryo-rage-healthy.png</code> later</li>
+            <li><code>assets/ryo-incubus-stage-1.png</code> later</li>
             <li><code>assets/panel-frame-*.png</code> later</li>
           </ul>
         </article>
