@@ -46,16 +46,35 @@ body {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 76% 42%, rgba(0, 212, 136, 0.22), transparent 16%),
-    radial-gradient(circle at 76% 42%, rgba(0, 0, 0, 0.35), transparent 28%),
+    radial-gradient(circle at 74% 45%, rgba(0, 212, 136, 0.22), transparent 18%),
+    radial-gradient(circle at 58% 45%, rgba(0, 80, 48, 0.22), transparent 26%),
+    radial-gradient(circle at 70% 45%, rgba(0, 0, 0, 0.65), transparent 34%),
     repeating-linear-gradient(
       90deg,
       rgba(255, 255, 255, 0.025) 0,
       rgba(255, 255, 255, 0.025) 1px,
       transparent 1px,
-      transparent 80px
+      transparent 96px
     );
-  opacity: 0.8;
+  opacity: 0.85;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 46%;
+  top: 50%;
+  width: 430px;
+  height: 430px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(200, 167, 106, 0.16);
+  box-shadow:
+    0 0 0 36px rgba(200, 167, 106, 0.025),
+    0 0 80px rgba(0, 212, 136, 0.08),
+    inset 0 0 70px rgba(0, 0, 0, 0.6);
+  opacity: 0.75;
+  pointer-events: none;
 }
 
 .hero-content {
