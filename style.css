@@ -35,28 +35,35 @@ body {
   min-height: 430px;
   overflow: hidden;
   border: 1px solid var(--panel-border);
-  background:
-    linear-gradient(90deg, rgba(2, 8, 7, 0.96) 0%, rgba(2, 8, 7, 0.86) 38%, rgba(2, 8, 7, 0.25) 72%, rgba(2, 8, 7, 0.7) 100%);
-  box-shadow:
-    0 0 40px rgba(0, 0, 0, 0.85),
-    inset 0 0 60px rgba(0, 212, 136, 0.06);
+  background: #020706;
 }
 
-.hero-background {
+.hero-bg-art {
   position: absolute;
   inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   background:
-    radial-gradient(circle at 74% 45%, rgba(0, 212, 136, 0.22), transparent 18%),
-    radial-gradient(circle at 58% 45%, rgba(0, 80, 48, 0.22), transparent 26%),
-    radial-gradient(circle at 70% 45%, rgba(0, 0, 0, 0.65), transparent 34%),
-    repeating-linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.025) 0,
-      rgba(255, 255, 255, 0.025) 1px,
-      transparent 1px,
-      transparent 96px
-    );
-  opacity: 0.85;
+    linear-gradient(90deg, rgba(2, 8, 7, 0.98) 0%, rgba(2, 8, 7, 0.86) 28%, rgba(2, 8, 7, 0.35) 58%, rgba(2, 8, 7, 0.72) 100%),
+    linear-gradient(180deg, rgba(2, 8, 7, 0.1), rgba(2, 8, 7, 0.7));
+  pointer-events: none;
+}
+
+
+.hero-background {
+  display: none;
 }
 
 .hero::after {
@@ -79,7 +86,7 @@ body {
 
 .hero-content {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   max-width: 560px;
   padding: 56px 42px;
 }
@@ -149,7 +156,7 @@ h1 {
 
 .ryo-portrait {
   position: absolute;
-  z-index: 1;
+  z-index: 2;
   right: 40px;
   bottom: -85px;
   height: 610px;
@@ -157,9 +164,6 @@ h1 {
   object-fit: contain;
   object-position: right bottom;
   pointer-events: none;
-  filter:
-    drop-shadow(0 0 28px rgba(0, 0, 0, 0.95))
-    drop-shadow(0 0 28px rgba(0, 212, 136, 0.16));
 }
 
 .test-grid {
