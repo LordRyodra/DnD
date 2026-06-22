@@ -61,7 +61,7 @@ body {
 .hero-content {
   position: relative;
   z-index: 2;
-  max-width: 620px;
+  max-width: 560px;
   padding: 56px 42px;
 }
 
@@ -75,7 +75,7 @@ body {
 
 h1 {
   margin: 0;
-  font-size: clamp(3rem, 7vw, 5.7rem);
+  font-size: clamp(2.8rem, 6vw, 5rem);
   line-height: 0.95;
   color: var(--text);
   text-shadow:
@@ -141,17 +141,6 @@ h1 {
   filter:
     drop-shadow(0 0 28px rgba(0, 0, 0, 0.95))
     drop-shadow(0 0 28px rgba(0, 212, 136, 0.16));
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 560px;
-  padding: 56px 42px;
-}
-
-h1 {
-  font-size: clamp(2.8rem, 6vw, 5rem);
 }
 
 .test-grid {
