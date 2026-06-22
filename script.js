@@ -6,6 +6,7 @@ const DEFAULT_STATE = {
   form: "base",
   inspiration: false,
   notes: "",
+  deathSaves: { successes: 0, failures: 0 },
   resources: Object.fromEntries(DATA.resources.map((resource) => [resource.id, resource.current]))
 };
 
@@ -22,6 +23,10 @@ function loadState() {
     return {
       ...clone(DEFAULT_STATE),
       ...stored,
+      deathSaves: {
+        ...DEFAULT_STATE.deathSaves,
+        ...(stored.deathSaves || {})
+      },
       resources: {
         ...DEFAULT_STATE.resources,
         ...(stored.resources || {})
@@ -39,6 +44,50 @@ function saveState() {
 
 function clamp(value, min, max) {
   return Math.min(Math.max(Number(value), min), max);
+}
+
+function hpPercent() {
+  const hp = getResourceValue("hp");
+  const hpMax = getResource("hp")?.max || 1;
+  return clamp(Math.round((hp / hpMax) * 100), 0, 100);
+}
+
+function hpColor(percent = hpPercent()) {
+  const pct = clamp(percent, 0, 100);
+  if (pct >= 50) {
+    const local = (pct - 50) / 50;
+    const hue = 48 + local * 96;
+    return `hsl(${hue} 92% 54%)`;
+  }
+  const local = pct / 50;
+  const hue = local * 48;
+  const light = 42 + local * 12;
+  return `hsl(${hue} 86% ${light}%)`;
+}
+
+function applyHpColorVars() {
+  const percent = hpPercent();
+  const color = hpColor(percent);
+  document.body.style.setProperty("--hp-color", color);
+  document.body.style.setProperty("--hp-fill", `${percent}%`);
+}
+
+function deathSaveLiveProbability(successes, failures) {
+  const s = clamp(successes, 0, 3);
+  const f = clamp(failures, 0, 3);
+  const memo = new Map();
+
+  function walk(sv, fl) {
+    if (sv >= 3) return 1;
+    if (fl >= 3) return 0;
+    const key = `${sv}/${fl}`;
+    if (memo.has(key)) return memo.get(key);
+    const value = 0.5 * walk(sv + 1, fl) + 0.5 * walk(sv, fl + 1);
+    memo.set(key, value);
+    return value;
+  }
+
+  return walk(s, f);
 }
 
 function getResource(id) {
@@ -170,51 +219,90 @@ function renderHero() {
   const heroRings = document.querySelector("#heroRings");
   if (!heroRings) return;
 
-  const primary = [
-    { label: "AC", value: DATA.character.armorClass, sub: "Armor", max: 30, kind: "fixed" },
-    { label: "HP", value: getResourceValue("hp"), sub: `/${getResource("hp").max}`, max: getResource("hp").max, kind: "resource", id: "hp" },
-    { label: "PB", value: `+${DATA.character.proficiencyBonus}`, sub: "Prof", max: 6, kind: "fixed" }
-  ];
+  const hp = getResourceValue("hp");
+  const hpMax = getResource("hp").max;
+  const percent = hpPercent();
+  const color = hpColor(percent);
 
-  heroRings.innerHTML = primary.map((ring) => {
-    const rawValue = Number(String(ring.value).replace("+", ""));
-    const percent = ring.max ? Math.round((rawValue / ring.max) * 100) : 100;
-    const style = `--ring-fill: ${clamp(percent, 0, 100)}%;`;
-    return `
-      <button class="resource-ring ${ring.kind === "resource" ? "is-clickable" : ""}" type="button" data-focus-resource="${ring.id || ""}" style="${style}" aria-label="${ring.label} ${ring.value}">
-        <span class="resource-label">${ring.label}</span>
-        <strong>${ring.value}</strong>
-        <small>${ring.sub || ""}</small>
-      </button>
-    `;
-  }).join("");
+  heroRings.innerHTML = `
+    <button class="resource-ring hp-header-ring is-clickable" type="button" data-focus-resource="hp" style="--ring-fill: ${percent}%; --ring-color: ${color};" aria-label="HP ${hp} of ${hpMax}">
+      <span class="resource-label">HP</span>
+      <strong>${hp}</strong>
+      <small>/${hpMax}</small>
+    </button>
+    <div class="hero-stat-plaque" aria-label="Armor Class ${DATA.character.armorClass}">
+      <span>AC</span>
+      <strong>${DATA.character.armorClass}</strong>
+      <small>Armor Class</small>
+    </div>
+    <div class="hero-stat-plaque" aria-label="Proficiency Bonus +${DATA.character.proficiencyBonus}">
+      <span>PB</span>
+      <strong>+${DATA.character.proficiencyBonus}</strong>
+      <small>Proficiency</small>
+    </div>
+  `;
 }
 
 function renderVitalCore() {
   const hp = getResourceValue("hp");
   const hpMax = getResource("hp").max;
   const tempHp = getResourceValue("tempHp");
-  const percent = hpMax ? Math.round((hp / hpMax) * 100) : 0;
-  const deathPercent = clamp(100 - percent, 0, 100);
+  const percent = hpPercent();
+  const color = hpColor(percent);
 
+  applyHpColorVars();
   setText("#largeHpValue", hp);
   setText("#largeHpMax", `/${hpMax}`);
   setText("#tempHpValue", tempHp);
 
   const hpRing = document.querySelector("#largeHpRing");
-  if (hpRing) hpRing.style.setProperty("--hp-fill", `${clamp(percent, 0, 100)}%`);
-
-  const pointer = document.querySelector("#deathPointer");
-  if (pointer) pointer.style.left = `${deathPercent}%`;
+  if (hpRing) {
+    hpRing.style.setProperty("--hp-fill", `${percent}%`);
+    hpRing.style.setProperty("--hp-color", color);
+  }
 
   const damage = getDamageState();
   const flavor = {
-    healthy: "Green at full health, steady and controlled.",
-    wounded: "The light sinks toward gold. The archive records strain.",
+    healthy: "HP is steady. The life thread burns green and controlled.",
+    wounded: "The life thread sinks toward gold. The archive records strain.",
     critical: "Deep red pressure. Ryo is close to collapse, but still standing.",
-    collapse: "The archive light is nearly extinguished."
+    collapse: "The archive light is nearly extinguished. Death saves decide the gate."
   };
   setText("#hpFlavor", flavor[damage]);
+}
+
+function renderDeathGate() {
+  const saves = state.deathSaves || { successes: 0, failures: 0 };
+  saves.successes = clamp(saves.successes || 0, 0, 3);
+  saves.failures = clamp(saves.failures || 0, 0, 3);
+  state.deathSaves = saves;
+
+  const liveProbability = deathSaveLiveProbability(saves.successes, saves.failures);
+  const pointerPercent = clamp((1 - liveProbability) * 100, 0, 100);
+  const pointer = document.querySelector("#deathPointer");
+  if (pointer) pointer.style.left = `${pointerPercent}%`;
+
+  const successDots = document.querySelector("#deathSuccessDots");
+  if (successDots) {
+    successDots.innerHTML = Array.from({ length: 3 }, (_, i) => `
+      <button type="button" class="${i < saves.successes ? "is-filled" : ""}" data-set-death="success" data-value="${i + 1}" aria-label="Set death save successes to ${i + 1}">✓</button>
+    `).join("");
+  }
+
+  const failureDots = document.querySelector("#deathFailureDots");
+  if (failureDots) {
+    failureDots.innerHTML = Array.from({ length: 3 }, (_, i) => `
+      <button type="button" class="${i < saves.failures ? "is-filled" : ""}" data-set-death="failure" data-value="${i + 1}" aria-label="Set death save failures to ${i + 1}">×</button>
+    `).join("");
+  }
+
+  let text = "Balanced between life and death. Success pulls left, failure pulls right.";
+  if (saves.successes >= 3) text = "Stable. The gate opens back toward life.";
+  else if (saves.failures >= 3) text = "Death has crossed the threshold.";
+  else if (saves.successes || saves.failures) {
+    text = `${saves.successes} success / ${saves.failures} failure. Current pull toward life: ${Math.round(liveProbability * 100)}%.`;
+  }
+  setText("#deathGateText", text);
 }
 
 function renderResources() {
@@ -328,33 +416,64 @@ function renderActiveConditions() {
   const container = document.querySelector("#activeConditionList");
   if (!container) return;
 
-  const cards = [];
-  if (getResourceValue("hex")) {
-    cards.push({ id: "hex", rune: "☾", title: "Hex", text: "Purple curse runes cling to the target layer." });
-  }
-  if (getResourceValue("tempHp") > 0) {
-    cards.push({ id: "tempHp", rune: "✹", title: "Dark One's Blessing", text: `${getResourceValue("tempHp")} temporary HP. Demonic protection is active.` });
-  }
-  if (state.form === "rage") {
-    cards.push({ id: "rageForm", rune: "♨", title: "Rage / Draconic Shift", text: "The archive burns hotter around Ryo's draconic side." });
-  }
+  const saves = state.deathSaves || { successes: 0, failures: 0 };
+  const seals = [
+    {
+      id: "hex",
+      rune: "☾",
+      title: "Hex",
+      text: getResourceValue("hex") ? "Active curse. Purple runes mark the target layer." : "Dormant. Ready to mark a target.",
+      active: Boolean(getResourceValue("hex")),
+      button: getResourceValue("hex") ? `<button type="button" data-toggle-resource="hex" aria-label="Remove Hex">×</button>` : `<button type="button" data-toggle-resource="hex">On</button>`
+    },
+    {
+      id: "rage",
+      rune: "♨",
+      title: "Rage",
+      text: state.form === "rage" ? "Draconic pressure is active." : `${getResourceValue("rage")} / ${getResource("rage").max} uses remain.`,
+      active: state.form === "rage"
+    },
+    {
+      id: "tempHp",
+      rune: "✹",
+      title: "Temp HP",
+      text: getResourceValue("tempHp") > 0 ? `${getResourceValue("tempHp")} temporary HP. Demonic protection is active.` : "No temporary shield.",
+      active: getResourceValue("tempHp") > 0
+    },
+    {
+      id: "death",
+      rune: "✧",
+      title: "Death Saves",
+      text: saves.successes || saves.failures ? `${saves.successes} successes / ${saves.failures} failures.` : "Centered. No death saves marked.",
+      active: Boolean(saves.successes || saves.failures)
+    }
+  ];
+
   if (state.form.startsWith("incubus")) {
-    cards.push({ id: "incubusForm", rune: "✦", title: getFormLabel(), text: "A left-sided inherited instinct presses through the soul layer." });
+    seals.push({
+      id: "incubus",
+      rune: "◆",
+      title: getFormLabel(),
+      text: "Inherited instinct presses through the soul layer.",
+      active: true
+    });
   }
+
   if (getDamageState() === "critical" || getDamageState() === "collapse") {
-    cards.push({ id: "nearDeath", rune: "!", title: "Near Death", text: "The interface darkens and loses energy." });
+    seals.push({
+      id: "nearDeath",
+      rune: "!",
+      title: "Near Death",
+      text: "The interface darkens and loses energy.",
+      active: true
+    });
   }
 
-  if (!cards.length) {
-    container.innerHTML = `<p class="panel-copy">No active condition echoes. The archive is steady.</p>`;
-    return;
-  }
-
-  container.innerHTML = cards.map((card) => `
-    <article class="condition-card">
+  container.innerHTML = seals.map((card) => `
+    <article class="condition-card seal-${card.id} ${card.active ? "is-active" : "is-dormant"}">
       <span class="condition-rune">${card.rune}</span>
       <div><strong>${card.title}</strong><p>${card.text}</p></div>
-      ${card.id === "hex" ? `<button type="button" data-toggle-resource="hex" aria-label="Remove Hex">×</button>` : ""}
+      ${card.button || ""}
     </article>
   `).join("");
 }
@@ -420,11 +539,36 @@ function setActiveTab(tabName) {
   });
 }
 
+function applyBulkHp(mode) {
+  const input = document.querySelector("#hpAmountInput");
+  const amount = clamp(Number(input?.value || 0), 0, 999);
+  if (!amount && mode !== "temp") return;
+
+  if (mode === "damage") setResourceValue("hp", getResourceValue("hp") - amount);
+  if (mode === "heal") {
+    setResourceValue("hp", getResourceValue("hp") + amount);
+    if (getResourceValue("hp") > 0) state.deathSaves = { successes: 0, failures: 0 };
+  }
+  if (mode === "temp") setResourceValue("tempHp", amount);
+
+  if (input) input.value = "";
+  saveState();
+  render();
+}
+
+function shortRest() {
+  state.resources.pactSlots = getResource("pactSlots").max;
+  if (getResourceValue("hp") > 0) state.deathSaves = { successes: 0, failures: 0 };
+  saveState();
+  render();
+}
+
 function longRest() {
   DATA.resources.forEach((resource) => {
     if (["hp", "pactSlots", "rage"].includes(resource.id)) state.resources[resource.id] = resource.max;
     if (["tempHp", "hex", "exhaustion"].includes(resource.id)) state.resources[resource.id] = resource.min;
   });
+  state.deathSaves = { successes: 0, failures: 0 };
   state.form = "base";
   state.inspiration = false;
   saveState();
@@ -451,6 +595,32 @@ function bindEvents() {
       setResourceValue(id, getResourceValue(id) + step);
     }
 
+    const hpApply = event.target.closest("[data-apply-hp]");
+    if (hpApply) applyBulkHp(hpApply.dataset.applyHp);
+
+    const deathAdjust = event.target.closest("[data-adjust-death]");
+    if (deathAdjust) {
+      const kind = deathAdjust.dataset.adjustDeath === "success" ? "successes" : "failures";
+      state.deathSaves[kind] = clamp((state.deathSaves?.[kind] || 0) + 1, 0, 3);
+      saveState();
+      render();
+    }
+
+    const deathSet = event.target.closest("[data-set-death]");
+    if (deathSet) {
+      const kind = deathSet.dataset.setDeath === "success" ? "successes" : "failures";
+      state.deathSaves[kind] = clamp(Number(deathSet.dataset.value), 0, 3);
+      saveState();
+      render();
+    }
+
+    const deathReset = event.target.closest("[data-reset-death]");
+    if (deathReset) {
+      state.deathSaves = { successes: 0, failures: 0 };
+      saveState();
+      render();
+    }
+
     const setResource = event.target.closest("[data-set-resource]");
     if (setResource) {
       setResourceValue(setResource.dataset.setResource, Number(setResource.dataset.value));
@@ -472,6 +642,7 @@ function bindEvents() {
     }
   });
 
+  document.querySelector("#shortRestButton")?.addEventListener("click", shortRest);
   document.querySelector("#longRestButton")?.addEventListener("click", longRest);
 
   document.querySelector("#resetButton")?.addEventListener("click", () => {
@@ -494,6 +665,7 @@ function bindEvents() {
 function render() {
   renderHero();
   renderVitalCore();
+  renderDeathGate();
   renderResources();
   renderActions("#actionCards");
   renderActions("#combatActionCards");

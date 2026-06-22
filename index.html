@@ -13,10 +13,11 @@
       <div class="hero-vignette" aria-hidden="true"></div>
       <div class="hero-dragon-eye" aria-hidden="true"></div>
 
-      <aside class="side-emblem" aria-hidden="true">
-        <div class="emblem-line"></div>
-        <div class="emblem-dragon">✦</div>
-        <div class="emblem-rune">𐌷</div>
+      <aside class="side-emblem" aria-label="Ryo sigil placeholder">
+        <div class="emblem-line" aria-hidden="true"></div>
+        <div class="emblem-dragon" aria-hidden="true">◇</div>
+        <div class="emblem-title">Ryo</div>
+        <div class="emblem-rune">Sigil Slot</div>
       </aside>
 
       <div class="portrait-ring" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -63,13 +64,13 @@
 
     <section class="tab-panel is-active" data-panel="status">
       <div class="status-grid reference-grid">
-        <article class="panel vital-core span-4 row-2">
+        <article class="panel vital-core major-panel span-6 row-3">
           <div class="panel-title-row">
             <div>
               <div class="panel-kicker">Vital Core</div>
-              <h2>Life Thread</h2>
+              <h2>HP / Life Thread</h2>
             </div>
-            <button class="edit-chip" type="button" data-focus-resource="hp">edit</button>
+            <button class="edit-chip" type="button" data-focus-resource="hp">session core</button>
           </div>
 
           <div class="vital-body">
@@ -79,39 +80,62 @@
               <span class="ring-label">HP</span>
             </div>
             <div class="vital-side">
-              <div class="mini-orb">
-                <strong id="tempHpValue">0</strong>
-                <span>Temp HP</span>
+              <div class="temp-row">
+                <div class="mini-orb">
+                  <strong id="tempHpValue">0</strong>
+                  <span>Temp HP</span>
+                </div>
+                <div class="quick-controls compact-controls temp-controls" aria-label="Temporary HP controls">
+                  <button type="button" data-adjust-resource="tempHp" data-step="-1">Temp −</button>
+                  <button type="button" data-adjust-resource="tempHp" data-step="1">Temp +</button>
+                </div>
               </div>
-              <p id="hpFlavor">Green at full health, sinking through gold into deep red near death.</p>
+              <p id="hpFlavor">HP color flows from green at full health through gold into deep red near collapse.</p>
               <div class="quick-controls compact-controls">
-                <button type="button" data-adjust-resource="hp" data-step="-1">−</button>
-                <button type="button" data-adjust-resource="hp" data-step="1">+</button>
-                <button type="button" data-adjust-resource="tempHp" data-step="1">Temp +</button>
+                <button type="button" data-adjust-resource="hp" data-step="-1">HP −1</button>
+                <button type="button" data-adjust-resource="hp" data-step="1">HP +1</button>
+              </div>
+              <div class="bulk-hp-controls" aria-label="Bulk HP controls">
+                <label>Amount <input id="hpAmountInput" type="number" min="0" inputmode="numeric" placeholder="40" /></label>
+                <button type="button" data-apply-hp="damage">Damage</button>
+                <button type="button" data-apply-hp="heal">Heal</button>
+                <button type="button" data-apply-hp="temp">Set Temp</button>
               </div>
             </div>
           </div>
         </article>
 
-        <article class="panel death-gate span-4 row-2">
+        <article class="panel death-gate major-panel span-6 row-3">
           <div class="panel-title-row">
             <div>
-              <div class="panel-kicker">Death Gate</div>
-              <h2>Not Yet Closed</h2>
+              <div class="panel-kicker">Death Saves</div>
+              <h2>Death Gate</h2>
             </div>
             <span class="small-glyph">✧</span>
           </div>
-          <div class="death-track">
-            <span class="track-label">Successes</span>
-            <div class="death-dots success-dots"><button>✓</button><button>✓</button><button>✓</button></div>
-            <span class="track-label">Failures</span>
-            <div class="death-dots failure-dots"><button>×</button><button>×</button><button>×</button></div>
+          <div class="death-axis-labels" aria-hidden="true">
+            <span>Life / Stable</span><span>Balance</span><span>Death</span>
           </div>
-          <div class="danger-gradient"><span id="deathPointer"></span></div>
-          <p>Hold on. The gate is not yet closed.</p>
+          <div class="danger-gradient death-save-gradient"><span id="deathPointer"></span></div>
+          <div class="death-track">
+            <div>
+              <span class="track-label">Successes</span>
+              <div class="death-dots success-dots" id="deathSuccessDots"></div>
+            </div>
+            <div>
+              <span class="track-label">Failures</span>
+              <div class="death-dots failure-dots" id="deathFailureDots"></div>
+            </div>
+          </div>
+          <div class="death-controls">
+            <button type="button" data-adjust-death="success">Success +</button>
+            <button type="button" data-adjust-death="failure">Failure +</button>
+            <button type="button" data-reset-death>Reset Death Saves</button>
+          </div>
+          <p id="deathGateText">Balanced between life and death. Success pulls left, failure pulls right.</p>
         </article>
 
-        <article class="panel focus-panel span-4 row-2">
+        <article class="panel focus-panel span-3 row-2">
           <div class="panel-kicker">Focus & Conditions</div>
           <h2>Session Flags</h2>
           <label class="check-row">
@@ -127,21 +151,21 @@
           </div>
         </article>
 
-        <article class="panel hit-dice span-4">
+        <article class="panel hit-dice span-3">
           <div class="panel-kicker">Hit Dice</div>
-          <h2>Recovery Reserve</h2>
+          <h2>Hit Dice / Recovery Reserve</h2>
           <div class="dice-row"><span>d8</span><strong>5</strong><em>/ 5</em></div>
           <div class="dice-row"><span>d12</span><strong>2</strong><em>/ 2</em></div>
         </article>
 
-        <article class="panel oath-panel span-4">
+        <article class="panel oath-panel span-3">
           <div class="panel-kicker">Sacred / Pact Remnants</div>
-          <h2>Protective Fragments</h2>
+          <h2>Divine Sense / Danger Sense</h2>
           <div class="meter-row"><span>Divine Sense</span><strong>5 / 5</strong></div>
           <div class="meter-row"><span>Danger Sense</span><strong>active</strong></div>
         </article>
 
-        <article class="panel spell-panel span-4">
+        <article class="panel spell-panel span-3">
           <div class="panel-kicker">Spell Slots</div>
           <h2>Pact Magic</h2>
           <div class="spell-slot-row">
@@ -158,7 +182,7 @@
           </div>
         </article>
 
-        <article class="panel attacks-panel span-5 row-3">
+        <article class="panel attacks-panel span-6 row-3">
           <div class="panel-kicker">Attacks</div>
           <h2>Battle Anchors</h2>
           <div class="attack-list" id="actionCards"></div>
@@ -170,9 +194,9 @@
           <div class="save-grid" id="attributeGrid"></div>
         </article>
 
-        <article class="panel active-panel span-4 row-3">
+        <article class="panel active-panel span-3 row-3">
           <div class="panel-kicker">Active Conditions</div>
-          <h2>Archive Echoes</h2>
+          <h2>Condition Seals</h2>
           <div class="active-condition-list" id="activeConditionList"></div>
         </article>
 
@@ -204,7 +228,7 @@
 
       <section class="identity-strip archive-frame" aria-label="Identity traces">
         <article><span>Dragon Child</span><strong>Blood of the Dragon.</strong><small>Power of the Pact. Soul of the Incubus.</small></article>
-        <article><span>Patron</span><strong>The Fiend</strong><small>Pact of the Chain. Pact of the Invoker.</small></article>
+        <article><span>Patron</span><strong>The Fiend</strong><small>Pact of the Invoker. Fiend chain marked.</small></article>
         <article><span>Truename</span><strong>Marked</strong><small>The name whispers in forgotten tongues.</small></article>
       </section>
     </section>
@@ -262,6 +286,7 @@
           <h2>Stored State</h2>
           <p class="panel-copy">Resource values, active form, inspiration and quick notes are saved in this browser with localStorage.</p>
           <div class="settings-actions">
+            <button class="ghost-button" type="button" id="shortRestButton">Short Rest</button>
             <button class="ghost-button" type="button" id="longRestButton">Long Rest</button>
             <button class="danger-button" type="button" id="resetButton">Reset Local State</button>
           </div>
