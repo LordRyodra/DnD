@@ -27,7 +27,7 @@
         <p class="archive-label">Dragon Archive <span>|</span> Personal System</p>
         <h1 id="archive-title">Ryo Dragneel</h1>
         <p class="subtitle" data-field="buildLine">Warlock 5 / Barbarian 2 · Level 7</p>
-        <p class="identity" data-field="identityLine">Incubus-Elf · Dragon Child · Last Wall</p>
+        <p class="identity" data-field="identityLine">Incubus-Elf · Dragon Child · Fiend Survivor</p>
 
         <div class="manifestation-controls" aria-label="Manifestation controls">
           <button type="button" class="manifest-button" data-form-action="base">
@@ -81,7 +81,7 @@
             </div>
             <div class="vital-side">
               <div class="temp-row">
-                <div class="mini-orb">
+                <div class="mini-orb demonic-temp-orb" id="tempHpOrb">
                   <strong id="tempHpValue">0</strong>
                   <span>Temp HP</span>
                 </div>
@@ -100,6 +100,20 @@
                 <button type="button" data-apply-hp="damage">Damage</button>
                 <button type="button" data-apply-hp="heal">Heal</button>
                 <button type="button" data-apply-hp="temp">Set Temp</button>
+              </div>
+              <div class="vital-subgrid">
+                <div class="hit-dice-inline">
+                  <span>Hit Dice</span>
+                  <strong>5d8 / 2d12</strong>
+                </div>
+                <div class="exhaustion-inline">
+                  <span>Exhaustion</span>
+                  <div class="exhaustion-row compact-exhaustion" id="exhaustionDots"></div>
+                </div>
+              </div>
+              <div class="rest-quick-actions prominent-rest-actions" aria-label="Rest controls">
+                <button class="ghost-button" type="button" data-rest-action="short">Short Rest</button>
+                <button class="ghost-button" type="button" data-rest-action="long">Long Rest</button>
               </div>
             </div>
           </div>
@@ -150,37 +164,19 @@
             <strong id="rageReadout">2 / 2</strong>
             <button type="button" data-adjust-resource="rage" data-step="1">+</button>
           </div>
-        </article>
-
-        <article class="panel focus-panel session-flags-panel span-3 row-2">
-          <div class="panel-kicker">Focus & Conditions</div>
-          <h2>Session Flags</h2>
-          <label class="check-row">
-            <span class="focus-icon">◇</span>
-            <span>Inspiration</span>
-            <input id="inspirationCheck" type="checkbox" />
-          </label>
-          <div class="exhaustion-row" id="exhaustionDots"></div>
-          <div class="condition-buttons">
-            <button type="button" data-toggle-resource="hex">Hex</button>
-            <button type="button" data-adjust-resource="exhaustion" data-step="1">Exhaustion +</button>
-            <button type="button" data-adjust-resource="exhaustion" data-step="-1">Exhaustion −</button>
+          <div class="spell-slot-row hex-row">
+            <span>Hex</span>
+            <button type="button" data-toggle-resource="hex" id="hexToggleButton">Toggle</button>
+            <strong id="hexReadout">Dormant</strong>
           </div>
         </article>
 
-        <article class="panel instinct-panel span-3">
+        <article class="panel instinct-panel span-3 row-2">
           <div class="panel-kicker">Instinct Layer</div>
           <h2>Guardian Instincts</h2>
           <div class="meter-row"><span>Danger Sense</span><strong>active</strong></div>
           <div class="meter-row"><span>Reckless Attack</span><strong>available</strong></div>
           <div class="meter-row"><span>Fey Ancestry</span><strong>passive</strong></div>
-        </article>
-
-        <article class="panel hit-dice span-3">
-          <div class="panel-kicker">Hit Dice</div>
-          <h2>Hit Dice / Recovery Reserve</h2>
-          <div class="dice-row"><span>d8</span><strong>5</strong><em>/ 5</em></div>
-          <div class="dice-row"><span>d12</span><strong>2</strong><em>/ 2</em></div>
         </article>
 
         <article class="panel attacks-panel span-6 row-3">
@@ -195,10 +191,15 @@
           <div class="save-grid" id="attributeGrid"></div>
         </article>
 
-        <article class="panel skills-panel span-3 row-3">
+        <article class="panel skills-panel span-6 row-3">
           <div class="panel-kicker">Skills / Senses</div>
           <h2>Session Checks</h2>
-          <div class="skills-list" id="skillsList"></div>
+          <label class="check-row inspiration-row">
+            <span class="focus-icon">◇</span>
+            <span>Inspiration</span>
+            <input id="inspirationCheck" type="checkbox" />
+          </label>
+          <div class="skills-list all-skills-list" id="skillsList"></div>
           <div class="passive-sense">
             <span>Passive Perception</span>
             <strong data-field="passivePerception">16</strong>
@@ -220,14 +221,14 @@
               <p>Before making a melee attack with a heavy weapon: −5 to hit for +10 damage.</p>
             </details>
             <details>
-              <summary><span>Style</span><strong>Great Weapon Fighting</strong></summary>
-              <p>When rolling weapon damage with a two-handed or versatile melee weapon, reroll 1 or 2 on the damage die.</p>
+              <summary><span>Barbarian</span><strong>Reckless Attack</strong></summary>
+              <p>Gain advantage on Strength melee attacks this turn; attacks against Ryo have advantage until his next turn.</p>
             </details>
           </div>
         </article>
 
         <article class="panel notes-panel span-4 row-2">
-          <div class="panel-kicker">Inspirations & Notes</div>
+          <div class="panel-kicker">Archive Notes</div>
           <h2>Quick Notes</h2>
           <textarea id="quickNotes" placeholder="Quick notes..." aria-label="Quick notes"></textarea>
         </article>
@@ -297,6 +298,12 @@
             <button class="ghost-button" type="button" id="longRestButton">Long Rest</button>
             <button class="danger-button" type="button" id="resetButton">Reset Local State</button>
           </div>
+        </article>
+        <article class="panel">
+          <div class="panel-kicker">Core Values</div>
+          <h2>Attributes / Proficiency</h2>
+          <p class="panel-copy">Changing these values recalculates saves, skills, attacks, spell DC, spell attack, initiative and passive perception.</p>
+          <div class="core-setting-grid" id="coreSettingGrid"></div>
         </article>
         <article class="panel">
           <div class="panel-kicker">Assets</div>

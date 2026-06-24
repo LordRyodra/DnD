@@ -51,6 +51,7 @@ body {
     linear-gradient(180deg, #020706 0%, #010303 100%);
   color: var(--text);
   font-family: Georgia, "Times New Roman", serif;
+  transition: background 680ms ease, color 420ms ease;
 }
 
 body::before {
@@ -260,7 +261,13 @@ button:disabled {
   object-position: bottom center;
   pointer-events: none;
   filter: drop-shadow(0 0 26px color-mix(in srgb, var(--accent) 25%, transparent));
-  transition: filter 220ms ease, transform 220ms ease, opacity 220ms ease;
+  transition: filter 620ms ease, transform 620ms cubic-bezier(.2,.75,.22,1), opacity 520ms ease;
+}
+
+.ryo-portrait.is-transitioning {
+  opacity: 0.08;
+  transform: translateY(12px) scale(0.985);
+  filter: blur(6px) grayscale(0.28) drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 18%, transparent));
 }
 
 .form-rage .ryo-portrait {
@@ -682,7 +689,8 @@ li {
 
 .compact-controls,
 .condition-buttons,
-.settings-actions {
+.settings-actions,
+.rest-quick-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -698,6 +706,28 @@ li {
 .danger-button {
   min-height: 34px;
   padding: 6px 12px;
+}
+
+
+.rest-quick-actions {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(240,216,154,0.14);
+}
+
+.rest-quick-actions .ghost-button {
+  flex: 1 1 120px;
+  justify-content: center;
+}
+
+.archive-hero,
+.panel,
+.tab-button,
+.manifest-button,
+.hero-stat-plaque,
+.resource-ring,
+.mini-orb {
+  transition: border-color 520ms ease, box-shadow 520ms ease, background-color 520ms ease, filter 520ms ease, opacity 420ms ease;
 }
 
 .death-track {
@@ -1565,4 +1595,204 @@ textarea:focus {
 
 .notes-panel textarea {
   min-height: 176px;
+}
+
+/* V7 refinements: session layout balance, full skill calculations, animated Temp HP seal */
+:root {
+  --gap: 6px;
+}
+
+.status-grid {
+  grid-auto-flow: dense;
+  gap: var(--gap);
+}
+
+.panel {
+  padding: 16px;
+}
+
+.hero-rings {
+  grid-template-columns: repeat(5, minmax(96px, 1fr));
+}
+
+.vital-subgrid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
+}
+
+.hit-dice-inline,
+.exhaustion-inline {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid rgba(190,153,83,0.22);
+  background: rgba(1,8,7,0.42);
+}
+
+.hit-dice-inline span,
+.exhaustion-inline span {
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+}
+
+.hit-dice-inline strong {
+  color: var(--gold-soft);
+  font-weight: 400;
+}
+
+.compact-exhaustion {
+  margin: 0;
+  gap: 5px;
+}
+
+.compact-exhaustion .exhaustion-dot {
+  width: 24px;
+  height: 24px;
+  font-size: 0.68rem;
+}
+
+.prominent-rest-actions {
+  border-top-color: color-mix(in srgb, var(--accent) 28%, rgba(240,216,154,0.14));
+}
+
+.prominent-rest-actions .ghost-button {
+  border-color: color-mix(in srgb, var(--accent) 44%, rgba(190,153,83,0.28));
+  box-shadow: inset 0 0 16px color-mix(in srgb, var(--accent) 9%, transparent);
+}
+
+.demonic-temp-orb {
+  isolation: isolate;
+  overflow: visible;
+  border-color: rgba(122, 50, 64, 0.78);
+  background:
+    radial-gradient(circle at 50% 44%, rgba(255, 78, 54, 0.26), transparent 21%),
+    radial-gradient(circle at 50% 50%, rgba(50, 0, 24, 0.62) 0 37%, rgba(2, 3, 4, 0.97) 65%),
+    conic-gradient(from 0deg, rgba(11, 0, 18, 0.88), rgba(124, 22, 38, 0.42), rgba(1, 0, 6, 0.92), rgba(55, 0, 28, 0.68), rgba(11, 0, 18, 0.88));
+  box-shadow:
+    0 0 22px rgba(0,0,0,0.9),
+    0 0 26px rgba(118, 26, 39, 0.22),
+    inset 0 0 26px rgba(0,0,0,0.92),
+    inset 0 0 16px rgba(255, 73, 58, 0.13);
+  animation: tempShadowBreath 3.8s ease-in-out infinite;
+}
+
+.demonic-temp-orb::before {
+  inset: -12px;
+  border: 1px solid rgba(139, 42, 59, 0.38);
+  background:
+    radial-gradient(circle, rgba(74, 0, 32, 0.18), transparent 58%),
+    conic-gradient(from 90deg, transparent, rgba(255, 65, 72, 0.24), transparent, rgba(0,0,0,0.5), transparent);
+  filter: blur(1px);
+  animation: tempAuraRotate 7.2s linear infinite;
+  z-index: -1;
+}
+
+.demonic-temp-orb::after {
+  inset: 16px;
+  border: 1px dashed rgba(255, 85, 66, 0.45);
+  opacity: 0.72;
+  animation: tempRunePulse 2.6s ease-in-out infinite;
+}
+
+.demonic-temp-orb strong {
+  color: #ffe8d4;
+  text-shadow: 0 0 14px rgba(255, 70, 58, 0.5), 0 0 24px rgba(0, 0, 0, 0.95);
+}
+
+@keyframes tempShadowBreath {
+  0%, 100% { transform: scale(1); filter: saturate(0.92) brightness(0.95); }
+  50% { transform: scale(1.035); filter: saturate(1.18) brightness(1.08); }
+}
+
+@keyframes tempAuraRotate {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes tempRunePulse {
+  0%, 100% { opacity: 0.42; transform: rotate(0deg) scale(0.96); }
+  50% { opacity: 0.86; transform: rotate(-7deg) scale(1.03); }
+}
+
+.all-skills-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.all-skills-list .skill-row {
+  min-height: 31px;
+  padding: 6px 9px;
+}
+
+.skill-row.is-proficient {
+  border-color: color-mix(in srgb, var(--accent) 40%, rgba(190,153,83,0.24));
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 8%, transparent), rgba(1,8,7,0.46));
+}
+
+.inspiration-row {
+  margin-bottom: 8px;
+  min-height: 38px;
+  padding: 8px 10px;
+}
+
+.hex-row {
+  border-color: color-mix(in srgb, var(--violet) 36%, rgba(190,153,83,0.18));
+}
+
+.hex-row strong {
+  min-width: 72px;
+  text-align: right;
+}
+
+.core-setting-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.core-setting-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 9px 10px;
+  border: 1px solid rgba(190,153,83,0.22);
+  background: rgba(1,8,7,0.45);
+}
+
+.core-setting-row span {
+  color: var(--gold-soft);
+  letter-spacing: 0.08em;
+}
+
+.core-setting-row strong {
+  min-width: 44px;
+  text-align: center;
+  color: var(--accent-2);
+}
+
+.core-setting-row button {
+  min-width: 30px;
+  min-height: 30px;
+  padding: 0 8px;
+}
+
+.proficiency-setting {
+  grid-column: 1 / -1;
+}
+
+.notes-panel .panel-kicker {
+  visibility: hidden;
+  height: 0;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .all-skills-list,
+  .core-setting-grid {
+    grid-template-columns: 1fr;
+  }
 }

@@ -4,14 +4,11 @@ window.DRAGON_ARCHIVE_DATA = {
     level: 7,
     build: "Warlock 5 / Barbarian 2",
     race: "Incubus-Elf",
-    theme: "Dragon Child · Fiend Survivor · Knowledge Seeker · Last Wall",
+    theme: "Dragon Child · Fiend Survivor · Knowledge Seeker",
     quote: "An mir kommt ihr nicht vorbei.",
     armorClass: 16,
     proficiencyBonus: 3,
-    passivePerception: 16,
     movement: "9m",
-    spellSaveDC: 16,
-    spellAttackBonus: 8,
     savingThrowProficiencies: ["WIS", "CHA"]
   },
 
@@ -47,152 +44,59 @@ window.DRAGON_ARCHIVE_DATA = {
   },
 
   resources: [
-    {
-      id: "hp",
-      name: "HP",
-      label: "Hit Points",
-      current: 57,
-      max: 57,
-      min: 0,
-      type: "pool",
-      priority: "very-often",
-      note: "Damage state is derived from HP."
-    },
-    {
-      id: "tempHp",
-      name: "Temp HP",
-      label: "Dark One's Blessing",
-      current: 0,
-      max: 10,
-      min: 0,
-      type: "pool",
-      priority: "very-often",
-      note: "Temporary protection. Later: demonic aura."
-    },
-    {
-      id: "pactSlots",
-      name: "Pact Slots",
-      label: "Warlock Magic",
-      current: 2,
-      max: 2,
-      min: 0,
-      type: "pool",
-      priority: "very-often",
-      note: "Level 3 slots."
-    },
-    {
-      id: "rage",
-      name: "Rage",
-      label: "Draconic Shift",
-      current: 2,
-      max: 2,
-      min: 0,
-      type: "pool",
-      priority: "very-often",
-      note: "Can drive the archive toward amber and red."
-    },
-    {
-      id: "hex",
-      name: "Hex",
-      label: "Active Curse",
-      current: 0,
-      max: 1,
-      min: 0,
-      type: "toggle",
-      priority: "very-often",
-      note: "Later: target runes and purple traces."
-    },
-    {
-      id: "exhaustion",
-      name: "Exhaustion",
-      label: "Body Strain",
-      current: 0,
-      max: 6,
-      min: 0,
-      type: "pool",
-      priority: "sometimes",
-      note: "Long-term strain marker."
-    }
+    { id: "hp", name: "HP", label: "Hit Points", current: 57, max: 57, min: 0, type: "pool", priority: "very-often", note: "Damage state is derived from HP." },
+    { id: "tempHp", name: "Temp HP", label: "Dark One's Blessing", current: 0, max: 30, min: 0, type: "pool", priority: "very-often", note: "Temporary demonic shield around the life thread." },
+    { id: "pactSlots", name: "Pact Slots", label: "Warlock Magic", current: 2, max: 2, min: 0, type: "pool", priority: "very-often", note: "Level 3 slots." },
+    { id: "rage", name: "Rage", label: "Draconic Shift", current: 2, max: 2, min: 0, type: "pool", priority: "very-often", note: "Can drive the archive toward amber and red." },
+    { id: "hex", name: "Hex", label: "Active Curse", current: 0, max: 1, min: 0, type: "toggle", priority: "very-often", note: "Target curse; belongs to Pact Magic and Condition Seals." },
+    { id: "exhaustion", name: "Exhaustion", label: "Body Strain", current: 0, max: 6, min: 0, type: "pool", priority: "sometimes", note: "Long-term strain marker tied to the Vital Core." }
   ],
 
   attacks: [
-    {
-      name: "Greataxe of Ragna",
-      tag: "Primary Weapon",
-      attack: "+6",
-      damage: "1d12 + 3 slashing",
-      note: "Great Weapon Master anchor."
-    },
-    {
-      name: "Eldritch Blast",
-      tag: "Pact Attack",
-      attack: "+8",
-      damage: "2 × 1d10 + 5 force",
-      note: "Very frequent session action."
-    },
-    {
-      name: "Green-Flame Blade",
-      tag: "Blade Cantrip",
-      attack: "+6",
-      damage: "1d12 + 3 slash · +1d8 fire · +1d8 + 5 jump",
-      note: "Useful against clustered enemies."
-    },
-    {
-      name: "Oni-san",
-      tag: "Backup Weapon",
-      attack: "+6",
-      damage: "1d8 + 3 bludgeoning",
-      note: "Secondary physical option."
-    }
+    { name: "Greataxe of Ragna", tag: "Primary Weapon", attackAbility: "STR", proficient: true, damageDie: "1d12", damageAbility: "STR", damageType: "slashing", note: "Great Weapon Master anchor." },
+    { name: "Eldritch Blast", tag: "Pact Attack", attackAbility: "CHA", proficient: true, beams: 2, damageDie: "1d10", damageAbility: "CHA", damageType: "force", note: "Very frequent session action." },
+    { name: "Green-Flame Blade", tag: "Blade Cantrip", attackAbility: "STR", proficient: true, damageDie: "1d12", damageAbility: "STR", damageType: "slash", extra: "+ 1d8 fire · + 1d8 CHA fire to nearby target", note: "Useful against clustered enemies." },
+    { name: "Oni-san", tag: "Backup Weapon", attackAbility: "STR", proficient: true, damageDie: "1d8", damageAbility: "STR", damageType: "bludgeoning", note: "Secondary physical option." },
+    { name: "Dagger", tag: "Light Weapon", attackAbility: "STR", proficient: true, damageDie: "1d4", damageAbility: "STR", damageType: "piercing", note: "Close backup option." }
   ],
 
-  attributes: {
-    STR: 16,
-    DEX: 10,
-    CON: 16,
-    INT: 9,
-    WIS: 16,
-    CHA: 20
-  },
-
+  attributes: { STR: 16, DEX: 10, CON: 16, INT: 9, WIS: 16, CHA: 20 },
 
   skills: [
-    { name: "Athletics", ability: "STR", bonus: "+6", note: "Strength + proficiency" },
-    { name: "Intimidation", ability: "CHA", bonus: "+8", note: "Charisma + proficiency" },
-    { name: "Animal Handling", ability: "WIS", bonus: "+6", note: "Wisdom + proficiency" },
-    { name: "Perception", ability: "WIS", bonus: "+6", note: "Wisdom + proficiency" },
-    { name: "Persuasion", ability: "CHA", bonus: "+8", note: "Charisma + proficiency" }
+    { name: "Acrobatics", ability: "DEX" },
+    { name: "Animal Handling", ability: "WIS", proficient: true },
+    { name: "Arcana", ability: "INT" },
+    { name: "Athletics", ability: "STR", proficient: true },
+    { name: "Deception", ability: "CHA" },
+    { name: "History", ability: "INT" },
+    { name: "Insight", ability: "WIS" },
+    { name: "Intimidation", ability: "CHA", proficient: true },
+    { name: "Investigation", ability: "INT" },
+    { name: "Medicine", ability: "WIS" },
+    { name: "Nature", ability: "INT" },
+    { name: "Perception", ability: "WIS", proficient: true },
+    { name: "Performance", ability: "CHA" },
+    { name: "Persuasion", ability: "CHA", proficient: true },
+    { name: "Religion", ability: "INT" },
+    { name: "Sleight of Hand", ability: "DEX" },
+    { name: "Stealth", ability: "DEX" },
+    { name: "Survival", ability: "WIS" }
   ],
 
   magic: [
-    { name: "Spell Save DC", value: "16" },
-    { name: "Spell Attack", value: "+8" },
-    { name: "Pact Slots", value: "2 / 2 · Level 3" },
+    { name: "Spell Save DC", kind: "spellSave" },
+    { name: "Spell Attack", kind: "spellAttack" },
+    { name: "Pact Slots", kind: "pactSlots" },
     { name: "Invoker", value: "Agonizing Blast · Beast Speech · Eyes of the Rune Keeper" },
     { name: "Fiend Patron", value: "Pact chain still marked in the archive" }
   ],
 
   identity: [
-    {
-      title: "Protector",
-      text: "Ryo is defined by what he chooses to protect, not by the powers layered around him."
-    },
-    {
-      title: "Dragon Child",
-      text: "The dragon represents endurance, growth, wisdom and the ancient."
-    },
-    {
-      title: "Fiend Survivor",
-      text: "The pact is a wound and a chain, not the center of who he is."
-    },
-    {
-      title: "Incubus Heritage",
-      text: "A force inherited rather than chosen. Unknown, magnetic and not fully understood."
-    },
-    {
-      title: "Last Wall",
-      text: "He seeks power because he never wants to be helpless again."
-    }
+    { title: "Protector", text: "Ryo is defined by what he chooses to protect, not by the powers layered around him." },
+    { title: "Dragon Child", text: "The dragon represents endurance, growth, wisdom and the ancient." },
+    { title: "Fiend Survivor", text: "The pact is a wound and a chain, not the center of who he is." },
+    { title: "Incubus Heritage", text: "A force inherited rather than chosen. Unknown, magnetic and not fully understood." },
+    { title: "Last Wall", text: "He seeks power because he never wants to be helpless again." }
   ],
 
   traces: [

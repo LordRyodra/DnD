@@ -7,10 +7,14 @@ const DEFAULT_STATE = {
   inspiration: false,
   notes: "",
   deathSaves: { successes: 0, failures: 0 },
+  proficiencyBonus: DATA.character.proficiencyBonus,
+  attributes: { ...DATA.attributes },
   resources: Object.fromEntries(DATA.resources.map((resource) => [resource.id, resource.current]))
 };
 
 let state = loadState();
+let currentPortraitPath = null;
+let portraitSwapToken = 0;
 
 function clone(value) {
   return typeof structuredClone === "function" ? structuredClone(value) : JSON.parse(JSON.stringify(value));
@@ -26,6 +30,11 @@ function loadState() {
       deathSaves: {
         ...DEFAULT_STATE.deathSaves,
         ...(stored.deathSaves || {})
+      },
+      proficiencyBonus: stored.proficiencyBonus ?? DEFAULT_STATE.proficiencyBonus,
+      attributes: {
+        ...DEFAULT_STATE.attributes,
+        ...(stored.attributes || {})
       },
       resources: {
         ...DEFAULT_STATE.resources,
@@ -248,9 +257,19 @@ function renderHero() {
       <strong>${DATA.character.armorClass}</strong>
       <small>Armor Class</small>
     </div>
-    <div class="hero-stat-plaque" aria-label="Proficiency Bonus +${DATA.character.proficiencyBonus}">
+    <div class="hero-stat-plaque" aria-label="Initiative ${formatModifier(getInitiativeBonus())}">
+      <span>INIT</span>
+      <strong>${formatModifier(getInitiativeBonus())}</strong>
+      <small>Initiative</small>
+    </div>
+    <div class="hero-stat-plaque" aria-label="Speed ${DATA.character.movement}">
+      <span>SPD</span>
+      <strong>${DATA.character.movement}</strong>
+      <small>Movement</small>
+    </div>
+    <div class="hero-stat-plaque" aria-label="Proficiency Bonus +${getProficiencyBonus()}">
       <span>PB</span>
-      <strong>+${DATA.character.proficiencyBonus}</strong>
+      <strong>+${getProficiencyBonus()}</strong>
       <small>Proficiency</small>
     </div>
   `;
@@ -364,8 +383,8 @@ function renderActions(targetId) {
         <h3>${attack.name}</h3>
       </div>
       <dl>
-        <div><dt>To Hit</dt><dd>${attack.attack}</dd></div>
-        <div><dt>Damage</dt><dd>${attack.damage}</dd></div>
+        <div><dt>To Hit</dt><dd>${formatModifier(getAttackBonus(attack))}</dd></div>
+        <div><dt>Damage</dt><dd>${getAttackDamage(attack)}</dd></div>
       </dl>
       <p>${attack.note}</p>
     </article>
@@ -380,20 +399,74 @@ function abilityModifier(score) {
   return Math.floor((score - 10) / 2);
 }
 
+function currentAttributes() {
+  return state.attributes || DATA.attributes;
+}
+
+function getAttributeScore(ability) {
+  return currentAttributes()[ability] ?? DATA.attributes[ability] ?? 10;
+}
+
+function getAbilityMod(ability) {
+  return abilityModifier(getAttributeScore(ability));
+}
+
+function getProficiencyBonus() {
+  return Number(state.proficiencyBonus ?? DATA.character.proficiencyBonus ?? 0);
+}
+
+function getSkillBonus(skill) {
+  return getAbilityMod(skill.ability) + (skill.proficient ? getProficiencyBonus() : 0) + (skill.bonusAdjustment || 0);
+}
+
+function getSaveBonus(ability) {
+  const proficiencies = new Set(DATA.character.savingThrowProficiencies || []);
+  return getAbilityMod(ability) + (proficiencies.has(ability) ? getProficiencyBonus() : 0);
+}
+
+function getInitiativeBonus() {
+  return getAbilityMod("DEX");
+}
+
+function getPassivePerception() {
+  const perception = (DATA.skills || []).find((skill) => skill.name === "Perception") || { ability: "WIS" };
+  return 10 + getSkillBonus(perception);
+}
+
+function getSpellSaveDC() {
+  return 8 + getProficiencyBonus() + getAbilityMod("CHA");
+}
+
+function getSpellAttackBonus() {
+  return getProficiencyBonus() + getAbilityMod("CHA");
+}
+
+function getAttackBonus(attack) {
+  return getAbilityMod(attack.attackAbility || "STR") + (attack.proficient ? getProficiencyBonus() : 0) + (attack.attackAdjustment || 0);
+}
+
+function getAttackDamage(attack) {
+  const ability = attack.damageAbility ? getAbilityMod(attack.damageAbility) : 0;
+  const prefix = attack.beams ? `${attack.beams} × ` : "";
+  const base = `${prefix}${attack.damageDie}${ability ? ` ${formatModifier(ability)}` : ""} ${attack.damageType || ""}`.trim();
+  if (!attack.extra) return base;
+  const extra = attack.extra.replace("CHA", formatModifier(getAbilityMod("CHA")));
+  return `${base} · ${extra}`;
+}
+
 function renderAttributes() {
   const container = document.querySelector("#attributeGrid");
   if (!container) return;
   const proficiencies = new Set(DATA.character.savingThrowProficiencies || []);
-  const proficiencyBonus = DATA.character.proficiencyBonus || 0;
 
-  container.innerHTML = Object.entries(DATA.attributes).map(([key, value]) => {
+  container.innerHTML = Object.entries(currentAttributes()).map(([key, value]) => {
     const proficient = proficiencies.has(key);
-    const save = abilityModifier(value) + (proficient ? proficiencyBonus : 0);
+    const save = getSaveBonus(key);
     return `
       <article class="attribute-card ${proficient ? "is-proficient" : ""}">
         <span>${key}</span>
         <strong>${formatModifier(save)}</strong>
-        <small>${proficient ? "prof" : "base"}</small>
+        <small>${value} · ${proficient ? "prof" : "base"}</small>
       </article>
     `;
   }).join("");
@@ -402,26 +475,35 @@ function renderAttributes() {
 function renderSkills() {
   const container = document.querySelector("#skillsList");
   if (!container) return;
-  container.innerHTML = (DATA.skills || []).map((skill) => `
-    <article class="skill-row" title="${skill.note || ""}">
-      <span>${skill.name}</span>
-      <small>${skill.ability}</small>
-      <strong>${skill.bonus}</strong>
-    </article>
-  `).join("");
+  container.innerHTML = (DATA.skills || []).map((skill) => {
+    const bonus = getSkillBonus(skill);
+    return `
+      <article class="skill-row ${skill.proficient ? "is-proficient" : ""}" title="${skill.proficient ? "Proficient" : "Base ability"}">
+        <span>${skill.name}</span>
+        <small>${skill.ability}${skill.proficient ? " · prof" : ""}</small>
+        <strong>${formatModifier(bonus)}</strong>
+      </article>
+    `;
+  }).join("");
 
-  setText('[data-field="passivePerception"]', DATA.character.passivePerception);
+  setText('[data-field="passivePerception"]', getPassivePerception());
 }
 
 function renderMagic() {
   const container = document.querySelector("#magicList");
   if (!container) return;
-  container.innerHTML = DATA.magic.map((item) => `
-    <div class="magic-row">
-      <span>${item.name}</span>
-      <strong>${item.value}</strong>
-    </div>
-  `).join("");
+  container.innerHTML = DATA.magic.map((item) => {
+    let value = item.value;
+    if (item.kind === "spellSave") value = getSpellSaveDC();
+    if (item.kind === "spellAttack") value = formatModifier(getSpellAttackBonus());
+    if (item.kind === "pactSlots") value = `${getResourceValue("pactSlots")} / ${getResource("pactSlots").max} · Level 3`;
+    return `
+      <div class="magic-row">
+        <span>${item.name}</span>
+        <strong>${value}</strong>
+      </div>
+    `;
+  }).join("");
 }
 
 function renderIdentity() {
@@ -517,6 +599,46 @@ function renderActiveConditions() {
   `).join("");
 }
 
+function updatePortrait(src) {
+  const portrait = document.querySelector("#ryoPortrait");
+  if (!portrait) return;
+
+  const fallback = DATA.assets.portraits.base_healthy;
+  const nextSrc = src || fallback;
+  const visibleSrc = portrait.getAttribute("src");
+
+  if (currentPortraitPath === nextSrc || visibleSrc === nextSrc) {
+    currentPortraitPath = nextSrc;
+    return;
+  }
+
+  const token = ++portraitSwapToken;
+  portrait.classList.add("is-transitioning");
+
+  const preload = new Image();
+  preload.onload = () => {
+    if (token !== portraitSwapToken) return;
+    window.setTimeout(() => {
+      if (token !== portraitSwapToken) return;
+      portrait.src = nextSrc;
+      currentPortraitPath = nextSrc;
+      portrait.onerror = () => {
+        portrait.onerror = null;
+        portrait.src = fallback;
+        currentPortraitPath = fallback;
+      };
+      requestAnimationFrame(() => portrait.classList.remove("is-transitioning"));
+    }, 140);
+  };
+  preload.onerror = () => {
+    if (token !== portraitSwapToken) return;
+    portrait.src = fallback;
+    currentPortraitPath = fallback;
+    portrait.classList.remove("is-transitioning");
+  };
+  preload.src = nextSrc;
+}
+
 function renderManifestationControls() {
   const stage = getIncubusStage();
   const rageValue = getResourceValue("rage");
@@ -548,17 +670,35 @@ function renderManifestation() {
   setText("#manifestationNote", getManifestationNote());
   setText("#pactSlotReadout", `${getResourceValue("pactSlots")} / ${getResource("pactSlots").max}`);
   setText("#rageReadout", `${getResourceValue("rage")} / ${getResource("rage").max}`);
+  setText("#hexReadout", getResourceValue("hex") ? "Active" : "Dormant");
 
-  const portrait = document.querySelector("#ryoPortrait");
-  if (portrait) {
-    portrait.src = getPortraitPath();
-    portrait.onerror = () => {
-      portrait.onerror = null;
-      portrait.src = DATA.assets.portraits.base_healthy;
-    };
-  }
+  updatePortrait(getPortraitPath());
 
   renderManifestationControls();
+}
+
+function renderCoreSettings() {
+  const container = document.querySelector("#coreSettingGrid");
+  if (!container) return;
+  const attributes = currentAttributes();
+  const attrControls = Object.entries(attributes).map(([key, value]) => `
+    <div class="core-setting-row">
+      <span>${key}</span>
+      <button type="button" data-adjust-attribute="${key}" data-step="-1">−</button>
+      <strong>${value}</strong>
+      <button type="button" data-adjust-attribute="${key}" data-step="1">+</button>
+    </div>
+  `).join("");
+
+  container.innerHTML = `
+    <div class="core-setting-row proficiency-setting">
+      <span>PB</span>
+      <button type="button" data-adjust-proficiency data-step="-1">−</button>
+      <strong>+${getProficiencyBonus()}</strong>
+      <button type="button" data-adjust-proficiency data-step="1">+</button>
+    </div>
+    ${attrControls}
+  `;
 }
 
 function renderSessionInputs() {
@@ -653,6 +793,29 @@ function bindEvents() {
     const hpApply = event.target.closest("[data-apply-hp]");
     if (hpApply) applyBulkHp(hpApply.dataset.applyHp);
 
+    const restAction = event.target.closest("[data-rest-action]");
+    if (restAction) {
+      if (restAction.dataset.restAction === "short") shortRest();
+      if (restAction.dataset.restAction === "long") longRest();
+    }
+
+    const attrAdjust = event.target.closest("[data-adjust-attribute]");
+    if (attrAdjust) {
+      const ability = attrAdjust.dataset.adjustAttribute;
+      const step = Number(attrAdjust.dataset.step || 0);
+      state.attributes = { ...currentAttributes(), [ability]: clamp(getAttributeScore(ability) + step, 1, 30) };
+      saveState();
+      render();
+    }
+
+    const pbAdjust = event.target.closest("[data-adjust-proficiency]");
+    if (pbAdjust) {
+      const step = Number(pbAdjust.dataset.step || 0);
+      state.proficiencyBonus = clamp(getProficiencyBonus() + step, 0, 10);
+      saveState();
+      render();
+    }
+
     const deathAdjust = event.target.closest("[data-adjust-death]");
     if (deathAdjust) {
       const kind = deathAdjust.dataset.adjustDeath === "success" ? "successes" : "failures";
@@ -732,6 +895,7 @@ function render() {
   renderExhaustion();
   renderActiveConditions();
   renderManifestation();
+  renderCoreSettings();
   renderSessionInputs();
   setActiveTab(state.activeTab);
 }
