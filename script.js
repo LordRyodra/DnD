@@ -113,8 +113,9 @@ function getDamageState() {
   const maxHp = getResource("hp").max;
   if (hp <= 0) return "collapse";
   const ratio = hp / maxHp;
-  if (ratio <= 0.25) return "critical";
-  if (ratio <= 0.75) return "wounded";
+  if (ratio <= 0.15) return "critical";
+  if (ratio <= 0.50) return "wounded";
+  if (ratio <= 0.75) return "lightly_wounded";
   return "healthy";
 }
 
@@ -140,6 +141,7 @@ function getFormLabel(form = state.form) {
 function getDamageLabel(damage = getDamageState()) {
   const labels = {
     healthy: "Healthy",
+    lightly_wounded: "Lightly Wounded",
     wounded: "Wounded",
     critical: "Critical",
     collapse: "Collapse"
@@ -156,14 +158,16 @@ function getManifestationNote() {
   if (state.form === "incubus2") return "The old instinct answers more clearly, still unfamiliar.";
   if (state.form === "incubus1") return "Something magnetic and unknown begins to stir.";
   if (damage === "critical") return "Close to collapse, still refusing to fall.";
-  if (damage === "wounded") return "The archive records strain, blood and endurance.";
+  if (damage === "wounded") return "The archive records blood, strain and endurance.";
+  if (damage === "lightly_wounded") return "The archive notes fresh strain, but Ryo remains controlled.";
   return "Silent guardian. Controlled presence.";
 }
 
 function getPortraitPath() {
   const damage = getDamageState();
+  if (damage === "collapse") return DATA.assets.portraits.base_collapse || DATA.assets.portraits.base_healthy;
   const key = `${state.form}_${damage}`;
-  return DATA.assets.portraits[key] || DATA.assets.portraits.base_healthy;
+  return DATA.assets.portraits[key] || DATA.assets.portraits[`base_${damage}`] || DATA.assets.portraits.base_healthy;
 }
 
 function getIncubusStage() {
@@ -171,6 +175,15 @@ function getIncubusStage() {
   if (state.form === "incubus2") return 2;
   if (state.form === "incubus3") return 3;
   return 0;
+}
+
+function normalizeState() {
+  const damage = getDamageState();
+  if (damage === "collapse" && state.form === "rage") {
+    state.form = "base";
+    return true;
+  }
+  return false;
 }
 
 function setText(selector, text) {
@@ -264,7 +277,8 @@ function renderVitalCore() {
   const damage = getDamageState();
   const flavor = {
     healthy: "HP is steady. The life thread burns green and controlled.",
-    wounded: "The life thread sinks toward gold. The archive records strain.",
+    lightly_wounded: "The life thread starts to dim toward gold. Minor wounds are visible.",
+    wounded: "The life thread has shifted into deeper gold and amber. The archive records strain.",
     critical: "Deep red pressure. Ryo is close to collapse, but still standing.",
     collapse: "The archive light is nearly extinguished. Death saves decide the gate."
   };
@@ -525,6 +539,8 @@ function renderManifestationControls() {
 }
 
 function renderManifestation() {
+  const changed = normalizeState();
+  if (changed) saveState();
   const damage = getDamageState();
   document.body.className = `archive-state form-${state.form} damage-${damage}`;
 
