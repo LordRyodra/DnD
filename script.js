@@ -461,12 +461,15 @@ function renderAttributes() {
 
   container.innerHTML = Object.entries(currentAttributes()).map(([key, value]) => {
     const proficient = proficiencies.has(key);
+    const mod = getAbilityMod(key);
     const save = getSaveBonus(key);
     return `
       <article class="attribute-card ${proficient ? "is-proficient" : ""}">
-        <span>${key}</span>
-        <strong>${formatModifier(save)}</strong>
-        <small>${value} · ${proficient ? "prof" : "base"}</small>
+        <span class="ability-name">${key}</span>
+        <span class="ability-score">${value}</span>
+        <span class="ability-mod">mod ${formatModifier(mod)}</span>
+        <strong class="save-bonus">save ${formatModifier(save)}</strong>
+        <small>${proficient ? "prof" : "base"}</small>
       </article>
     `;
   }).join("");
