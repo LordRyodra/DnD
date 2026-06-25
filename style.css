@@ -2197,3 +2197,91 @@ textarea:focus {
     text-align: left;
   }
 }
+
+/* V10 header correction: keep primary stats out of the manifestation buttons and portrait. */
+.archive-hero {
+  min-height: 420px;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 6;
+  max-width: 560px;
+}
+
+.hero-rings {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  z-index: 6;
+  margin: -6px 0 22px 136px;
+  width: fit-content;
+  max-width: min(640px, calc(100% - 560px));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Portraits should remain the actual asset colors. UI changes color, not Ryo's image. */
+.damage-critical .archive-hero,
+.damage-collapse .archive-hero {
+  filter: none;
+}
+
+.ryo-portrait,
+.form-rage .ryo-portrait,
+.form-incubus1 .ryo-portrait,
+.form-incubus2 .ryo-portrait,
+.form-incubus3 .ryo-portrait,
+.damage-critical .ryo-portrait,
+.damage-collapse .ryo-portrait {
+  filter: drop-shadow(0 0 26px rgba(0, 0, 0, 0.55));
+}
+
+.form-rage .ryo-portrait {
+  transform: translateY(2px) scale(1.025);
+}
+
+.form-incubus1 .ryo-portrait { transform: translateY(1px) scale(1.01); }
+.form-incubus2 .ryo-portrait { transform: translateY(2px) scale(1.018); }
+.form-incubus3 .ryo-portrait { transform: translateY(4px) scale(1.035); }
+.damage-critical .ryo-portrait { opacity: 1; }
+.damage-collapse .ryo-portrait { opacity: 1; }
+
+@media (max-width: 1180px) {
+  .archive-hero {
+    min-height: 455px;
+  }
+
+  .hero-rings {
+    margin-left: 120px;
+    max-width: min(560px, calc(100% - 430px));
+  }
+}
+
+@media (max-width: 820px) {
+  .archive-hero {
+    min-height: 700px;
+  }
+
+  .hero-rings {
+    margin: 12px 18px 0 86px;
+    width: auto;
+    max-width: none;
+    justify-content: flex-start;
+  }
+
+  .hero-state-panel {
+    bottom: 18px;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-rings {
+    margin-left: 18px;
+    margin-right: 18px;
+  }
+}
