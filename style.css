@@ -2285,3 +2285,303 @@ textarea:focus {
     margin-right: 18px;
   }
 }
+
+/* V11: One page, one question. Status only answers: How is Ryo right now? */
+.status-v1-grid {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--gap);
+  align-items: stretch;
+}
+
+.status-v1-grid > .panel {
+  min-height: auto;
+}
+
+.status-core-panel {
+  grid-column: span 6;
+  min-height: 330px;
+}
+
+.status-session-panel {
+  grid-column: span 4;
+  min-height: 255px;
+}
+
+.status-notes-panel {
+  grid-column: 1 / -1;
+  min-height: 270px;
+}
+
+.status-notes-panel textarea {
+  min-height: 210px;
+}
+
+.status-vital-body {
+  grid-template-columns: minmax(230px, 0.82fr) minmax(260px, 1fr);
+  gap: 24px;
+  align-items: center;
+}
+
+.status-vital-body .large-hp-ring {
+  width: min(245px, 100%);
+}
+
+.status-vital-side {
+  align-content: center;
+  gap: 12px;
+}
+
+.status-temp-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.hp-step-controls button,
+.temp-controls button {
+  flex: 1 1 92px;
+}
+
+.state-description {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.38;
+}
+
+.status-death-panel {
+  display: grid;
+  align-content: center;
+}
+
+.status-death-track {
+  margin-top: 12px;
+}
+
+.status-death-panel .death-dots button {
+  width: 42px;
+  height: 42px;
+  font-size: 1.35rem;
+}
+
+.compact-death-controls button {
+  flex: 1 1 100px;
+}
+
+.status-toggle-grid {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.status-toggle-grid button {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid rgba(190,153,83,0.24);
+  background: rgba(1,8,7,0.5);
+  color: var(--gold-soft);
+  text-align: left;
+}
+
+.status-toggle-grid button strong {
+  color: var(--accent-2);
+  font-weight: 500;
+}
+
+.status-exhaustion-block {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(190,153,83,0.18);
+}
+
+.status-exhaustion-block > span {
+  display: block;
+  color: var(--gold-soft);
+  margin-bottom: 6px;
+}
+
+.status-exhaustion-block .exhaustion-row {
+  margin: 0;
+}
+
+.status-v1-grid .active-condition-list {
+  gap: 7px;
+}
+
+.status-v1-grid .condition-card {
+  padding: 8px 9px;
+  min-height: 54px;
+}
+
+.status-v1-grid .condition-rune {
+  width: 34px;
+  height: 34px;
+}
+
+.status-v1-grid .condition-card p {
+  font-size: 0.82rem;
+}
+
+.recovery-stack {
+  display: grid;
+  gap: 8px;
+}
+
+.recovery-row,
+.recovery-resource-row {
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid rgba(190,153,83,0.22);
+  background: rgba(1,8,7,0.45);
+}
+
+.recovery-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.recovery-row span,
+.recovery-resource-row span {
+  color: var(--gold-soft);
+}
+
+.recovery-row strong,
+.recovery-resource-row strong {
+  color: var(--text);
+}
+
+.recovery-resource-row {
+  grid-template-columns: 1fr auto auto auto;
+}
+
+.prominent-rest-actions {
+  margin-top: 12px;
+}
+
+/* Other tabs now carry the full sheet details instead of overloading Status. */
+.panel-grid.combat-grid,
+.panel-grid.magic-grid,
+.panel-grid.character-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--gap);
+  margin-top: 8px;
+}
+
+.combat-actions-panel { grid-column: span 8; }
+.combat-features-panel { grid-column: span 4; }
+.combat-saves-panel { grid-column: span 4; }
+.combat-skills-panel { grid-column: span 8; }
+
+.magic-core-panel,
+.magic-spell-panel,
+.magic-invocation-panel,
+.magic-incubus-panel,
+.character-identity-panel,
+.character-traits-panel,
+.character-state-panel,
+.character-trace-panel {
+  grid-column: span 6;
+}
+
+.magic-card-list {
+  display: grid;
+  gap: 10px;
+}
+
+.magic-card-list article {
+  border: 1px solid rgba(190,153,83,0.22);
+  background: rgba(1,8,7,0.44);
+  padding: 12px;
+}
+
+.magic-card-list span {
+  display: block;
+  color: var(--accent-2);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.magic-card-list strong {
+  display: block;
+  color: var(--gold-soft);
+  margin-top: 3px;
+  font-weight: 400;
+  font-size: 1.1rem;
+}
+
+.magic-card-list small {
+  color: var(--muted);
+}
+
+/* Status is quieter, so notes can actually be used during play. */
+.status-notes-panel h2 {
+  margin-bottom: 10px;
+}
+
+@media (max-width: 1180px) {
+  .status-core-panel,
+  .status-session-panel,
+  .status-notes-panel,
+  .combat-actions-panel,
+  .combat-features-panel,
+  .combat-saves-panel,
+  .combat-skills-panel,
+  .magic-core-panel,
+  .magic-spell-panel,
+  .magic-invocation-panel,
+  .magic-incubus-panel,
+  .character-identity-panel,
+  .character-traits-panel,
+  .character-state-panel,
+  .character-trace-panel {
+    grid-column: 1 / -1;
+  }
+
+  .status-vital-body {
+    grid-template-columns: minmax(220px, 0.7fr) minmax(260px, 1fr);
+  }
+}
+
+@media (max-width: 820px) {
+  .status-v1-grid,
+  .panel-grid.combat-grid,
+  .panel-grid.magic-grid,
+  .panel-grid.character-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .status-core-panel,
+  .status-session-panel,
+  .status-notes-panel,
+  .combat-actions-panel,
+  .combat-features-panel,
+  .combat-saves-panel,
+  .combat-skills-panel,
+  .magic-core-panel,
+  .magic-spell-panel,
+  .magic-invocation-panel,
+  .magic-incubus-panel,
+  .character-identity-panel,
+  .character-traits-panel,
+  .character-state-panel,
+  .character-trace-panel {
+    grid-column: 1 / -1;
+  }
+
+  .status-vital-body,
+  .status-temp-row {
+    grid-template-columns: 1fr;
+  }
+
+  .status-vital-body .large-hp-ring {
+    width: 210px;
+  }
+}
+.condition-card.seal-concentration.is-active .condition-rune { color: #86ddff; border-color: #86ddff; }

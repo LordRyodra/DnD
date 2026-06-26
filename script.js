@@ -551,6 +551,14 @@ function renderActiveConditions() {
       button: getResourceValue("hex") ? `<button type="button" data-toggle-resource="hex" aria-label="Remove Hex">×</button>` : `<button type="button" data-toggle-resource="hex">On</button>`
     },
     {
+      id: "concentration",
+      rune: "◌",
+      title: "Concentration",
+      text: getResourceValue("concentration") ? "Spell focus is being maintained." : "No active concentration.",
+      active: Boolean(getResourceValue("concentration")),
+      button: getResourceValue("concentration") ? `<button type="button" data-toggle-resource="concentration" aria-label="Remove Concentration">×</button>` : `<button type="button" data-toggle-resource="concentration">On</button>`
+    },
+    {
       id: "rage",
       rune: "♨",
       title: "Rage",
@@ -674,6 +682,7 @@ function renderManifestation() {
   setText("#pactSlotReadout", `${getResourceValue("pactSlots")} / ${getResource("pactSlots").max}`);
   setText("#rageReadout", `${getResourceValue("rage")} / ${getResource("rage").max}`);
   setText("#hexReadout", getResourceValue("hex") ? "Active" : "Dormant");
+  setText("#concentrationReadout", getResourceValue("concentration") ? "Active" : "Dormant");
 
   updatePortrait(getPortraitPath());
 
@@ -764,7 +773,7 @@ function shortRest() {
 function longRest() {
   DATA.resources.forEach((resource) => {
     if (["hp", "pactSlots", "rage"].includes(resource.id)) state.resources[resource.id] = resource.max;
-    if (["tempHp", "hex", "exhaustion"].includes(resource.id)) state.resources[resource.id] = resource.min;
+    if (["tempHp", "hex", "concentration", "exhaustion"].includes(resource.id)) state.resources[resource.id] = resource.min;
   });
   state.deathSaves = { successes: 0, failures: 0 };
   state.form = "base";

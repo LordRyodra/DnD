@@ -4,7 +4,7 @@ window.DRAGON_ARCHIVE_DATA = {
     level: 7,
     build: "Warlock 5 / Barbarian 2",
     race: "Incubus-Elf",
-    theme: "Dragon Child · Fiend Survivor · Knowledge Seeker",
+    theme: "Dragon Child · Fiend Survivor · Knowledge Seeker · Last Wall",
     quote: "An mir kommt ihr nicht vorbei.",
     armorClass: 16,
     proficiencyBonus: 3,
@@ -49,6 +49,7 @@ window.DRAGON_ARCHIVE_DATA = {
     { id: "pactSlots", name: "Pact Slots", label: "Warlock Magic", current: 2, max: 2, min: 0, type: "pool", priority: "very-often", note: "Level 3 slots." },
     { id: "rage", name: "Rage", label: "Draconic Shift", current: 2, max: 2, min: 0, type: "pool", priority: "very-often", note: "Can drive the archive toward amber and red." },
     { id: "hex", name: "Hex", label: "Active Curse", current: 0, max: 1, min: 0, type: "toggle", priority: "very-often", note: "Target curse; belongs to Pact Magic and Condition Seals." },
+    { id: "concentration", name: "Concentration", label: "Spell Focus", current: 0, max: 1, min: 0, type: "toggle", priority: "sometimes", note: "Active concentration marker for spell effects." },
     { id: "exhaustion", name: "Exhaustion", label: "Body Strain", current: 0, max: 6, min: 0, type: "pool", priority: "sometimes", note: "Long-term strain marker tied to the Vital Core." }
   ],
 

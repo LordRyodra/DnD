@@ -27,7 +27,7 @@
         <p class="archive-label">Dragon Archive <span>|</span> Personal System</p>
         <h1 id="archive-title">Ryo Dragneel</h1>
         <p class="subtitle" data-field="buildLine">Warlock 5 / Barbarian 2 · Level 7</p>
-        <p class="identity" data-field="identityLine">Incubus-Elf · Dragon Child · Fiend Survivor</p>
+        <p class="identity" data-field="identityLine">Incubus-Elf · Dragon Child · Last Wall</p>
 
         <div class="manifestation-controls" aria-label="Manifestation controls">
           <button type="button" class="manifest-button" data-form-action="base">
@@ -63,24 +63,25 @@
     </nav>
 
     <section class="tab-panel is-active" data-panel="status">
-      <div class="status-grid reference-grid">
-        <article class="panel vital-core major-panel span-6 row-3">
+      <div class="status-v1-grid">
+        <article class="panel vital-core major-panel status-core-panel">
           <div class="panel-title-row">
             <div>
-              <div class="panel-kicker">Vital Core</div>
+              <div class="panel-kicker">Core State</div>
               <h2>HP / Life Thread</h2>
             </div>
-            <button class="edit-chip" type="button" data-focus-resource="hp">session core</button>
+            <button class="edit-chip" type="button" data-focus-resource="hp">current state</button>
           </div>
 
-          <div class="vital-body">
+          <div class="vital-body status-vital-body">
             <div class="large-hp-ring" id="largeHpRing" aria-label="Current hit points">
               <span class="ring-value" id="largeHpValue">57</span>
               <span class="ring-max" id="largeHpMax">/57</span>
               <span class="ring-label">HP</span>
             </div>
-            <div class="vital-side">
-              <div class="temp-row">
+
+            <div class="vital-side status-vital-side">
+              <div class="temp-row status-temp-row">
                 <div class="mini-orb demonic-temp-orb" id="tempHpOrb">
                   <strong id="tempHpValue">0</strong>
                   <span>Temp HP</span>
@@ -90,36 +91,25 @@
                   <button type="button" data-adjust-resource="tempHp" data-step="1">Temp +</button>
                 </div>
               </div>
-              <p id="hpFlavor">HP color flows from green at full health through gold into deep red near collapse.</p>
-              <div class="quick-controls compact-controls">
+
+              <p id="hpFlavor" class="state-description">HP color flows from green at full health through gold into deep red near collapse.</p>
+
+              <div class="quick-controls compact-controls hp-step-controls">
                 <button type="button" data-adjust-resource="hp" data-step="-1">HP −1</button>
                 <button type="button" data-adjust-resource="hp" data-step="1">HP +1</button>
               </div>
+
               <div class="bulk-hp-controls" aria-label="Bulk HP controls">
                 <label>Amount <input id="hpAmountInput" type="number" min="0" inputmode="numeric" placeholder="40" /></label>
                 <button type="button" data-apply-hp="damage">Damage</button>
                 <button type="button" data-apply-hp="heal">Heal</button>
                 <button type="button" data-apply-hp="temp">Set Temp</button>
               </div>
-              <div class="vital-subgrid">
-                <div class="hit-dice-inline">
-                  <span>Hit Dice</span>
-                  <strong>5d8 / 2d12</strong>
-                </div>
-                <div class="exhaustion-inline">
-                  <span>Exhaustion</span>
-                  <div class="exhaustion-row compact-exhaustion" id="exhaustionDots"></div>
-                </div>
-              </div>
-              <div class="rest-quick-actions prominent-rest-actions" aria-label="Rest controls">
-                <button class="ghost-button" type="button" data-rest-action="short">Short Rest</button>
-                <button class="ghost-button" type="button" data-rest-action="long">Long Rest</button>
-              </div>
             </div>
           </div>
         </article>
 
-        <article class="panel death-gate major-panel span-6 row-3">
+        <article class="panel death-gate major-panel status-core-panel status-death-panel">
           <div class="panel-title-row">
             <div>
               <div class="panel-kicker">Death Saves</div>
@@ -127,11 +117,13 @@
             </div>
             <span class="small-glyph">✧</span>
           </div>
+
           <div class="death-axis-labels" aria-hidden="true">
             <span>Life / Stable</span><span>Balance</span><span>Death</span>
           </div>
           <div class="danger-gradient death-save-gradient"><span id="deathPointer"></span></div>
-          <div class="death-track">
+
+          <div class="death-track status-death-track">
             <div>
               <span class="track-label">Successes</span>
               <div class="death-dots success-dots" id="deathSuccessDots"></div>
@@ -141,96 +133,67 @@
               <div class="death-dots failure-dots" id="deathFailureDots"></div>
             </div>
           </div>
-          <div class="death-controls">
+
+          <div class="death-controls compact-death-controls">
             <button type="button" data-adjust-death="success">Success +</button>
             <button type="button" data-adjust-death="failure">Failure +</button>
-            <button type="button" data-reset-death>Reset Death Saves</button>
+            <button type="button" data-reset-death>Reset</button>
           </div>
-          <p id="deathGateText">Balanced between life and death. Success pulls left, failure pulls right.</p>
+          <p id="deathGateText" class="state-description">Balanced between life and death. Success pulls left, failure pulls right.</p>
         </article>
 
-        <article class="panel spell-panel span-3">
-          <div class="panel-kicker">Spell Slots</div>
-          <h2>Pact Magic</h2>
-          <div class="spell-slot-row">
-            <span>Warlock Lv. 3</span>
-            <button type="button" data-adjust-resource="pactSlots" data-step="-1">−</button>
-            <strong id="pactSlotReadout">2 / 2</strong>
-            <button type="button" data-adjust-resource="pactSlots" data-step="1">+</button>
-          </div>
-          <div class="spell-slot-row">
-            <span>Rage Uses</span>
-            <button type="button" data-adjust-resource="rage" data-step="-1">−</button>
-            <strong id="rageReadout">2 / 2</strong>
-            <button type="button" data-adjust-resource="rage" data-step="1">+</button>
-          </div>
-          <div class="spell-slot-row hex-row">
-            <span>Hex</span>
-            <button type="button" data-toggle-resource="hex" id="hexToggleButton">Toggle</button>
-            <strong id="hexReadout">Dormant</strong>
-          </div>
-        </article>
-
-        <article class="panel instinct-panel span-3 row-2">
-          <div class="panel-kicker">Instinct Layer</div>
-          <h2>Guardian Instincts</h2>
-          <div class="meter-row"><span>Danger Sense</span><strong>active</strong></div>
-          <div class="meter-row"><span>Reckless Attack</span><strong>available</strong></div>
-          <div class="meter-row"><span>Fey Ancestry</span><strong>passive</strong></div>
-        </article>
-
-        <article class="panel attacks-panel span-6 row-3">
-          <div class="panel-kicker">Attacks</div>
-          <h2>Battle Anchors</h2>
-          <div class="attack-list" id="actionCards"></div>
-        </article>
-
-        <article class="panel saves-panel span-3 row-3">
-          <div class="panel-kicker">Saving Throws</div>
-          <h2>Body / Mind / Will</h2>
-          <div class="save-grid" id="attributeGrid"></div>
-        </article>
-
-        <article class="panel skills-panel span-6 row-3">
-          <div class="panel-kicker">Skills / Senses</div>
-          <h2>Session Checks</h2>
+        <article class="panel status-session-panel session-flags-panel">
+          <div class="panel-kicker">Session State</div>
+          <h2>Session Flags</h2>
           <label class="check-row inspiration-row">
             <span class="focus-icon">◇</span>
             <span>Inspiration</span>
             <input id="inspirationCheck" type="checkbox" />
           </label>
-          <div class="skills-list all-skills-list" id="skillsList"></div>
-          <div class="passive-sense">
-            <span>Passive Perception</span>
-            <strong data-field="passivePerception">16</strong>
+          <div class="status-toggle-grid">
+            <button type="button" data-toggle-resource="concentration">Concentration <strong id="concentrationReadout">Dormant</strong></button>
+            <button type="button" data-toggle-resource="hex">Hex <strong id="hexReadout">Dormant</strong></button>
+          </div>
+          <div class="exhaustion-inline status-exhaustion-block">
+            <span>Exhaustion</span>
+            <div class="exhaustion-row compact-exhaustion" id="exhaustionDots"></div>
           </div>
         </article>
 
-        <article class="panel active-panel compact-seals span-4 row-2">
+        <article class="panel status-session-panel active-panel compact-seals">
           <div class="panel-kicker">Active Conditions</div>
           <h2>Condition Seals</h2>
           <div class="active-condition-list" id="activeConditionList"></div>
         </article>
 
-        <article class="panel features-panel span-4 row-2">
-          <div class="panel-kicker">Features</div>
-          <h2>Frequently Needed</h2>
-          <div class="feature-stack feature-tooltip-stack">
-            <details>
-              <summary><span>Feat</span><strong>Great Weapon Master</strong></summary>
-              <p>Before making a melee attack with a heavy weapon: −5 to hit for +10 damage.</p>
-            </details>
-            <details>
-              <summary><span>Barbarian</span><strong>Reckless Attack</strong></summary>
-              <p>Gain advantage on Strength melee attacks this turn; attacks against Ryo have advantage until his next turn.</p>
-            </details>
+        <article class="panel status-session-panel recovery-panel">
+          <div class="panel-kicker">Recovery</div>
+          <h2>Recovery Reserve</h2>
+          <div class="recovery-stack">
+            <div class="recovery-row"><span>Hit Dice</span><strong>5d8 / 2d12</strong></div>
+            <div class="spell-slot-row recovery-resource-row">
+              <span>Pact Slots</span>
+              <button type="button" data-adjust-resource="pactSlots" data-step="-1">−</button>
+              <strong id="pactSlotReadout">2 / 2</strong>
+              <button type="button" data-adjust-resource="pactSlots" data-step="1">+</button>
+            </div>
+            <div class="spell-slot-row recovery-resource-row">
+              <span>Rage Uses</span>
+              <button type="button" data-adjust-resource="rage" data-step="-1">−</button>
+              <strong id="rageReadout">2 / 2</strong>
+              <button type="button" data-adjust-resource="rage" data-step="1">+</button>
+            </div>
+          </div>
+          <div class="rest-quick-actions prominent-rest-actions" aria-label="Rest controls">
+            <button class="ghost-button" type="button" data-rest-action="short">Short Rest</button>
+            <button class="ghost-button" type="button" data-rest-action="long">Long Rest</button>
           </div>
         </article>
 
-        <article class="panel notes-panel span-4 row-2">
+        <article class="panel notes-panel status-notes-panel">
           <div class="panel-kicker">Archive Notes</div>
           <h2>Quick Notes</h2>
-          <textarea id="quickNotes" placeholder="Quick notes..." aria-label="Quick notes"></textarea>
+          <textarea id="quickNotes" placeholder="Quick notes for the current session..." aria-label="Quick notes"></textarea>
         </article>
       </div>
 
@@ -242,44 +205,139 @@
     </section>
 
     <section class="tab-panel" data-panel="combat">
-      <div class="panel-grid two-col">
-        <article class="panel">
+      <div class="panel-grid combat-grid">
+        <article class="panel combat-actions-panel">
           <div class="panel-kicker">Combat Layer</div>
-          <h2>Prepared Structure</h2>
-          <p class="panel-copy">Reserved for attacks, rage state, conditions, damage notes and weapon-specific panels. The Status tab stays focused on the live session overlay.</p>
+          <h2>What do I do on my turn?</h2>
           <div class="attack-list" id="combatActionCards"></div>
         </article>
-        <article class="panel">
-          <div class="panel-kicker">Draconic Shift</div>
-          <h2>Rage Visual Hook</h2>
-          <p class="panel-copy">Pressing Rage consumes one Rage use when entering the form and pushes the archive toward amber pressure, red cracks and hotter resource light.</p>
+
+        <article class="panel combat-features-panel">
+          <div class="panel-kicker">Turn Tools</div>
+          <h2>Frequently Needed</h2>
+          <div class="feature-stack feature-tooltip-stack">
+            <details>
+              <summary><span>Feat</span><strong>Great Weapon Master</strong></summary>
+              <p>Before making a melee attack with a heavy weapon: −5 to hit for +10 damage.</p>
+            </details>
+            <details>
+              <summary><span>Barbarian</span><strong>Reckless Attack</strong></summary>
+              <p>Gain advantage on Strength melee attacks this turn; attacks against Ryo have advantage until his next turn.</p>
+            </details>
+            <details>
+              <summary><span>Instinct</span><strong>Danger Sense</strong></summary>
+              <p>Advantage on Dexterity saving throws against effects Ryo can see.</p>
+            </details>
+          </div>
+        </article>
+
+        <article class="panel saves-panel combat-saves-panel">
+          <div class="panel-kicker">Saving Throws</div>
+          <h2>Body / Mind / Will</h2>
+          <div class="save-grid" id="attributeGrid"></div>
+        </article>
+
+        <article class="panel skills-panel combat-skills-panel">
+          <div class="panel-kicker">Skills / Senses</div>
+          <h2>Checks & Awareness</h2>
+          <div class="skills-list all-skills-list" id="skillsList"></div>
+          <div class="passive-sense">
+            <span>Passive Perception</span>
+            <strong data-field="passivePerception">16</strong>
+          </div>
         </article>
       </div>
     </section>
 
     <section class="tab-panel" data-panel="magic">
-      <div class="panel-grid two-col">
-        <article class="panel">
+      <div class="panel-grid magic-grid">
+        <article class="panel magic-core-panel">
           <div class="panel-kicker">Pact Magic</div>
-          <h2>Warlock Core</h2>
+          <h2>Available Magic</h2>
           <div class="magic-list" id="magicList"></div>
         </article>
-        <article class="panel">
-          <div class="panel-kicker">Hex / Fiend / Incubus</div>
-          <h2>Future Spellbook Layer</h2>
-          <p class="panel-copy">Prepared for spell cards, Hex target traces, invocation switching and incubus heritage magic without becoming a generic spell list.</p>
+
+        <article class="panel magic-spell-panel">
+          <div class="panel-kicker">Spells</div>
+          <h2>Spellbook Layer</h2>
+          <div class="magic-card-list">
+            <article><span>3rd Level</span><strong>Fireball</strong><small>Known pact spell.</small></article>
+            <article><span>3rd Level</span><strong>Counterspell</strong><small>Planned / selected spell slot candidate.</small></article>
+            <article><span>1st Level</span><strong>Hex</strong><small>Target curse and condition seal.</small></article>
+          </div>
+        </article>
+
+        <article class="panel magic-invocation-panel">
+          <div class="panel-kicker">Pact of the Invoker</div>
+          <h2>Invocations</h2>
+          <div class="feature-stack feature-tooltip-stack">
+            <details open>
+              <summary><span>Always</span><strong>Mask of Many Faces</strong></summary>
+              <p>At-will Disguise Self.</p>
+            </details>
+            <details>
+              <summary><span>Homebrew</span><strong>Heart of the Pact</strong></summary>
+              <p>Pact of the Tome cantrip layer: Guidance, Mage Hand, Resistance.</p>
+            </details>
+            <details>
+              <summary><span>Invoker Pool</span><strong>Agonizing Blast / Beast Speech / Eyes of the Rune Keeper</strong></summary>
+              <p>One active at a time; switching requires ritual / rest logic.</p>
+            </details>
+          </div>
+        </article>
+
+        <article class="panel magic-incubus-panel">
+          <div class="panel-kicker">Heritage Magic</div>
+          <h2>Incubus Magic</h2>
+          <p class="panel-copy">Reserved for active and dormant incubus abilities, stage interaction and future life-energy mechanics.</p>
         </article>
       </div>
     </section>
 
     <section class="tab-panel" data-panel="character">
-      <div class="panel-grid two-col">
-        <article class="panel">
+      <div class="panel-grid character-grid">
+        <article class="panel character-identity-panel">
           <div class="panel-kicker">Identity Layer</div>
           <h2>Who is Ryo?</h2>
           <div class="identity-stack" id="identityStack"></div>
         </article>
-        <article class="panel">
+
+        <article class="panel character-traits-panel">
+          <div class="panel-kicker">Character Sheet Layer</div>
+          <h2>Traits / Feat / Patron</h2>
+          <div class="feature-stack feature-tooltip-stack">
+            <details open>
+              <summary><span>Race</span><strong>Incubus-Elf</strong></summary>
+              <p>Darkvision, Fey Ancestry, 6h sleep and inherited incubus traits.</p>
+            </details>
+            <details>
+              <summary><span>Background</span><strong>Dragon Child</strong></summary>
+              <p>Ryo carries the archive trace of the dragon who raised him.</p>
+            </details>
+            <details>
+              <summary><span>Patron</span><strong>The Fiend</strong></summary>
+              <p>Fiend Patron and Pact of the Invoker remain marked in the archive.</p>
+            </details>
+            <details>
+              <summary><span>Feat</span><strong>Great Weapon Master</strong></summary>
+              <p>Core combat feat. Detailed combat use lives in the Combat tab.</p>
+            </details>
+          </div>
+        </article>
+
+        <article class="panel character-state-panel">
+          <div class="panel-kicker">Manifestation System</div>
+          <h2>Form / Damage / Control</h2>
+          <p class="panel-copy">Base, Rage and Incubus states change Ryo's portrait and the Archive's presence. Damage changes what the Archive reveals about his condition.</p>
+          <ul class="trace-list">
+            <li>Base shows Ryo when he is controlled and himself.</li>
+            <li>Rage reveals the draconic side through pressure and force.</li>
+            <li>Incubus emergence shows inherited instinct and loss of control.</li>
+            <li>Collapse is shared as the 0 HP state.</li>
+          </ul>
+        </article>
+
+        <article class="panel character-trace-panel">
           <div class="panel-kicker">Archive Trace</div>
           <h2>What the Archive Remembers</h2>
           <ul class="trace-list" id="traceList"></ul>
