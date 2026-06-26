@@ -9,6 +9,9 @@ const DEFAULT_STATE = {
   deathSaves: { successes: 0, failures: 0 },
   proficiencyBonus: DATA.character.proficiencyBonus,
   attributes: { ...DATA.attributes },
+  activeInvokerInvocation: "agonizing-blast",
+  cardAvailability: {},
+  cardOverrides: { combat: {}, magic: {} },
   resources: Object.fromEntries(DATA.resources.map((resource) => [resource.id, resource.current]))
 };
 
@@ -35,6 +38,15 @@ function loadState() {
       attributes: {
         ...DEFAULT_STATE.attributes,
         ...(stored.attributes || {})
+      },
+      activeInvokerInvocation: stored.activeInvokerInvocation || DEFAULT_STATE.activeInvokerInvocation,
+      cardAvailability: {
+        ...DEFAULT_STATE.cardAvailability,
+        ...(stored.cardAvailability || {})
+      },
+      cardOverrides: {
+        combat: { ...(stored.cardOverrides?.combat || {}) },
+        magic: { ...(stored.cardOverrides?.magic || {}) }
       },
       resources: {
         ...DEFAULT_STATE.resources,
@@ -381,9 +393,99 @@ function safeText(value) {
     .replaceAll('"', "&quot;");
 }
 
-function flipCardTemplate({ index, group, tag, name, icon, mini, tone, details }) {
+function slugify(value) {
+  return String(value || "card")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "") || "card";
+}
+
+function cardId(card, index, group = "magic") {
+  return card.id || `${group}-${slugify(card.name)}-${index}`;
+}
+
+function getCardOverrides(group, id) {
+  return state.cardOverrides?.[group]?.[id] || {};
+}
+
+function mergedCard(card, group, index) {
+  const id = cardId(card, index, group);
+  return { ...card, ...getCardOverrides(group, id), id };
+}
+
+function isCardPrepared(card) {
+  if (card.alwaysActive) return true;
+  if (card.invokerPool) return state.activeInvokerInvocation === card.id;
+  if (Object.prototype.hasOwnProperty.call(state.cardAvailability || {}, card.id)) {
+    return Boolean(state.cardAvailability[card.id]);
+  }
+  return card.prepared !== false;
+}
+
+function cardStatusLabel(card) {
+  if (card.alwaysActive) return "Always Active";
+  if (card.invokerPool) return state.activeInvokerInvocation === card.id ? "Invoker Active" : "Invoker Inactive";
+  return isCardPrepared(card) ? "Prepared" : "Dormant";
+}
+
+function cardTone(card, fallback = "archive") {
+  if (card.tone) return card.tone;
+  if (card.category === "incubus-magic" || card.type?.toLowerCase().includes("incubus")) return "incubus";
+  if (card.category === "invocations" || card.type?.toLowerCase().includes("invocation")) return "pact";
+  if (card.category === "warlock-spells") return "magic";
+  if (card.category === "cantrips") return "cantrip";
+  return fallback;
+}
+
+function dynamicCardValue(card) {
+  if (card.kind === "spellSave") return getSpellSaveDC();
+  if (card.kind === "spellAttack") return formatModifier(getSpellAttackBonus());
+  if (card.kind === "pactSlots") return `${getResourceValue("pactSlots")} / ${getResource("pactSlots").max} · Level 3`;
+  return card.dynamic || "Ryo Layer";
+}
+
+function cardEditFields(card) {
+  const fields = [
+    ["icon", "Icon"],
+    ["tag", "Tag"],
+    ["name", "Name"],
+    ["mini", "Front text"],
+    ["type", "Type"],
+    ["cost", "Cost"],
+    ["range", "Range"],
+    ["duration", "Duration"]
+  ];
+  const inputFields = fields.map(([key, label]) => `
+    <label><span>${safeText(label)}</span><input data-card-edit-field="${safeText(key)}" value="${safeText(card[key] || "")}" /></label>
+  `).join("");
+  return `
+    <div class="card-edit-area" data-card-edit-area>
+      <div class="card-edit-grid">${inputFields}</div>
+      <label class="card-edit-detail"><span>Details</span><textarea data-card-edit-field="detail">${safeText(card.detail || "")}</textarea></label>
+      <div class="card-edit-actions">
+        <button type="button" data-save-card-edit>Save Card</button>
+        <button type="button" data-reset-card-edit>Reset Text</button>
+      </div>
+    </div>
+  `;
+}
+
+function flipCardTemplate({ index, group, card, tag, name, icon, mini, tone, details }) {
+  const sourceCard = card || { tag, name, icon, mini, tone };
   const safeGroup = safeText(group || "archive");
-  const safeTone = safeText(tone || "archive");
+  const id = cardId(sourceCard, index, group);
+  const prepared = isCardPrepared(sourceCard);
+  const safeTone = safeText(cardTone(sourceCard, tone || "archive"));
+  const statusLabel = cardStatusLabel(sourceCard);
+  const classes = [
+    "archive-flip-card",
+    `card-tone-${safeTone}`,
+    prepared ? "is-prepared" : "is-muted",
+    sourceCard.invokerPool ? "is-invoker-pool" : "",
+    sourceCard.invokerPool && state.activeInvokerInvocation === id ? "is-invoker-active" : "",
+    sourceCard.alwaysActive ? "is-always-active" : ""
+  ].filter(Boolean).join(" ");
+
   const detailRows = (details || []).map(([label, value]) => `
     <div class="flip-detail-row">
       <span>${safeText(label)}</span>
@@ -391,22 +493,37 @@ function flipCardTemplate({ index, group, tag, name, icon, mini, tone, details }
     </div>
   `).join("");
 
+  const availabilityButton = sourceCard.invokerPool
+    ? `<button type="button" class="card-state-button" data-set-invoker="${safeText(id)}">${state.activeInvokerInvocation === id ? "Active Invoker" : "Set Active"}</button>`
+    : sourceCard.alwaysActive
+      ? `<span class="card-state-pill">Always Active</span>`
+      : `<button type="button" class="card-state-button" data-toggle-card-availability data-card-group="${safeGroup}" data-card-id="${safeText(id)}">${prepared ? "Prepared" : "Mark Prepared"}</button>`;
+
   return `
-    <article class="archive-flip-card card-tone-${safeTone}" data-flip-card tabindex="0" role="button" aria-label="Open ${safeText(name)} card" data-card-group="${safeGroup}" data-card-index="${index}">
+    <article class="${classes}" data-flip-card tabindex="0" role="button" aria-label="Open ${safeText(sourceCard.name)} card" data-card-group="${safeGroup}" data-card-index="${index}" data-card-id="${safeText(id)}">
       <div class="archive-flip-inner">
         <section class="archive-card-face archive-card-front">
-          <div class="archive-card-art" aria-hidden="true"><span>${safeText(icon || "✦")}</span></div>
+          <div class="archive-card-art" aria-hidden="true"><span>${safeText(sourceCard.icon || "✦")}</span></div>
           <div class="archive-card-front-copy">
-            <small>${safeText(tag || "Archive Card")}</small>
-            <h3>${safeText(name)}</h3>
-            <p>${safeText(mini || "Click to reveal details.")}</p>
+            <small>${safeText(sourceCard.tag || "Archive Card")}</small>
+            <h3>${safeText(sourceCard.name)}</h3>
+            <p>${safeText(sourceCard.mini || "Click to reveal details.")}</p>
           </div>
+          <span class="card-status-badge">${safeText(statusLabel)}</span>
         </section>
         <section class="archive-card-face archive-card-back">
           <button class="card-close" type="button" data-close-card aria-label="Close card">×</button>
-          <small>${safeText(tag || "Archive Card")}</small>
-          <h3>${safeText(name)}</h3>
+          <div class="card-back-header">
+            <small>${safeText(sourceCard.tag || "Archive Card")}</small>
+            <h3>${safeText(sourceCard.name)}</h3>
+            <span>${safeText(statusLabel)}</span>
+          </div>
           <div class="flip-detail-stack">${detailRows}</div>
+          <div class="card-back-actions">
+            ${availabilityButton}
+            <button type="button" class="card-edit-button" data-edit-card> Edit</button>
+          </div>
+          ${cardEditFields(sourceCard)}
         </section>
       </div>
     </article>
@@ -432,22 +549,19 @@ function renderActions(targetId) {
   if (!container) return;
   container.classList.add("archive-card-grid", "combat-card-grid");
   container.innerHTML = DATA.attacks.map((attack, index) => {
+    const card = mergedCard(attack, "combat", index);
     const toHit = formatModifier(getAttackBonus(attack));
     const damage = getAttackDamage(attack);
     const details = [
       ["To Hit", toHit],
       ["Damage", damage],
       ["Ability", `${attack.attackAbility || "STR"}${attack.proficient ? " · prof" : ""}`],
-      ["Use", attack.detail || attack.note || "Combat option."]
+      ["Use", card.detail || attack.detail || attack.note || "Combat option."]
     ];
     return flipCardTemplate({
       index,
       group: "combat",
-      tag: attack.tag,
-      name: attack.name,
-      icon: attack.icon || "⚔",
-      mini: attack.mini || attack.note,
-      tone: "weapon",
+      card: { ...card, prepared: true, tone: "weapon" },
       details
     });
   }).join("");
@@ -508,7 +622,8 @@ function getAttackBonus(attack) {
 }
 
 function getAttackDamage(attack) {
-  const ability = attack.damageAbility ? getAbilityMod(attack.damageAbility) : 0;
+  const invocationAllowsDamage = !attack.damageInvocation || state.activeInvokerInvocation === attack.damageInvocation;
+  const ability = attack.damageAbility && invocationAllowsDamage ? getAbilityMod(attack.damageAbility) : 0;
   const prefix = attack.beams ? `${attack.beams} × ` : "";
   const base = `${prefix}${attack.damageDie}${ability ? ` ${formatModifier(ability)}` : ""} ${attack.damageType || ""}`.trim();
   if (!attack.extra) return base;
@@ -574,25 +689,51 @@ function renderMagic() {
 
   const cardContainer = document.querySelector("#magicCardGrid");
   if (!cardContainer) return;
-  cardContainer.innerHTML = (DATA.magicCards || []).map((card, index) => {
-    const details = [
-      ["Type", card.type || card.tag || "Magic"],
-      ["Cost", card.cost || "—"],
-      ["Range", card.range || "—"],
-      ["Duration", card.duration || "—"],
-      [card.kind === "spellSave" ? "Save DC" : card.kind === "spellAttack" ? "Spell Attack" : "Archive", card.kind ? magicDynamicValue(card) : "Ryo Layer"],
-      ["Details", card.detail || "Prepared archive entry."]
-    ];
-    return flipCardTemplate({
-      index,
-      group: "magic",
-      tag: card.tag,
-      name: card.name,
-      icon: card.icon || "✦",
-      mini: card.mini,
-      tone: card.type?.toLowerCase().includes("incubus") || card.name?.toLowerCase().includes("incubus") ? "incubus" : "magic",
-      details
-    });
+
+  const categories = DATA.magicCategories || [
+    { id: "warlock-spells", title: "Warlock Spells", subtitle: "Leveled pact spells." },
+    { id: "cantrips", title: "Cantrips", subtitle: "At-will magic." },
+    { id: "invocations", title: "Eldritch Invocations", subtitle: "Pact layers." },
+    { id: "incubus-magic", title: "Incubus Magic", subtitle: "Heritage magic." }
+  ];
+
+  const cards = (DATA.magicCards || []).map((card, index) => mergedCard(card, "magic", index));
+
+  cardContainer.innerHTML = categories.map((category) => {
+    const categoryCards = cards.filter((card) => card.category === category.id);
+    if (!categoryCards.length) return "";
+
+    const activeCount = categoryCards.filter((card) => isCardPrepared(card)).length;
+    const cardHtml = categoryCards.map((card) => {
+      const originalIndex = (DATA.magicCards || []).findIndex((item) => cardId(item, 0, "magic") === card.id || item.id === card.id);
+      const details = [
+        ["Type", card.type || card.tag || "Magic"],
+        ["Cost", card.cost || "—"],
+        ["Range", card.range || "—"],
+        ["Duration", card.duration || "—"],
+        [card.kind === "spellSave" ? "Save DC" : card.kind === "spellAttack" ? "Spell Attack" : "Archive", card.kind ? dynamicCardValue(card) : card.invokerPool ? "Invoker Pool" : "Ryo Layer"],
+        ["Details", card.detail || "Prepared archive entry."]
+      ];
+      return flipCardTemplate({
+        index: originalIndex >= 0 ? originalIndex : 0,
+        group: "magic",
+        card,
+        details
+      });
+    }).join("");
+
+    return `
+      <section class="magic-category-section" data-magic-category="${safeText(category.id)}">
+        <header class="magic-category-header">
+          <div>
+            <div class="panel-kicker">${safeText(category.title)}</div>
+            <h3>${safeText(category.subtitle || "")}</h3>
+          </div>
+          <span>${activeCount} / ${categoryCards.length} active</span>
+        </header>
+        <div class="archive-card-grid magic-card-grid categorized-card-grid">${cardHtml}</div>
+      </section>
+    `;
   }).join("");
 }
 
@@ -869,6 +1010,73 @@ function longRest() {
   render();
 }
 
+function baseCardById(group, id, index) {
+  const list = group === "magic" ? (DATA.magicCards || []) : group === "combat" ? (DATA.attacks || []) : [];
+  return list.find((card, cardIndex) => cardId(card, cardIndex, group) === id || card.id === id) || list[Number(index)] || null;
+}
+
+function toggleCardAvailabilityFromButton(button) {
+  const cardElement = button.closest("[data-flip-card]");
+  const group = button.dataset.cardGroup || cardElement?.dataset.cardGroup || "magic";
+  const id = button.dataset.cardId || cardElement?.dataset.cardId;
+  const index = cardElement?.dataset.cardIndex;
+  const base = baseCardById(group, id, index);
+  if (!base || base.alwaysActive || base.invokerPool) return;
+  const effective = mergedCard(base, group, Number(index || 0));
+  const current = isCardPrepared(effective);
+  state.cardAvailability[id] = !current;
+  saveState();
+  render();
+  openFlipCard(document.querySelector(`[data-flip-card][data-card-group="${CSS.escape(group)}"][data-card-id="${CSS.escape(id)}"]`));
+}
+
+function setActiveInvoker(id) {
+  const card = (DATA.magicCards || []).find((item) => item.id === id && item.invokerPool);
+  if (!card) return;
+  state.activeInvokerInvocation = id;
+  saveState();
+  render();
+  openFlipCard(document.querySelector(`[data-flip-card][data-card-group="magic"][data-card-id="${CSS.escape(id)}"]`));
+}
+
+function beginCardEdit(button) {
+  const card = button.closest("[data-flip-card]");
+  if (!card) return;
+  card.classList.add("is-editing");
+}
+
+function collectCardEditValues(cardElement) {
+  const values = {};
+  cardElement.querySelectorAll("[data-card-edit-field]").forEach((field) => {
+    values[field.dataset.cardEditField] = field.value.trim();
+  });
+  return values;
+}
+
+function saveCardEdit(button) {
+  const cardElement = button.closest("[data-flip-card]");
+  if (!cardElement) return;
+  const group = cardElement.dataset.cardGroup;
+  const id = cardElement.dataset.cardId;
+  const values = collectCardEditValues(cardElement);
+  state.cardOverrides[group] = state.cardOverrides[group] || {};
+  state.cardOverrides[group][id] = values;
+  saveState();
+  render();
+  openFlipCard(document.querySelector(`[data-flip-card][data-card-group="${CSS.escape(group)}"][data-card-id="${CSS.escape(id)}"]`));
+}
+
+function resetCardEdit(button) {
+  const cardElement = button.closest("[data-flip-card]");
+  if (!cardElement) return;
+  const group = cardElement.dataset.cardGroup;
+  const id = cardElement.dataset.cardId;
+  if (state.cardOverrides?.[group]) delete state.cardOverrides[group][id];
+  saveState();
+  render();
+  openFlipCard(document.querySelector(`[data-flip-card][data-card-group="${CSS.escape(group)}"][data-card-id="${CSS.escape(id)}"]`));
+}
+
 function bindEvents() {
   document.addEventListener("click", (event) => {
     const tab = event.target.closest("[data-tab]");
@@ -877,6 +1085,36 @@ function bindEvents() {
     const closeCard = event.target.closest("[data-close-card]");
     if (closeCard) {
       closeExpandedCards();
+      return;
+    }
+
+    const setInvoker = event.target.closest("[data-set-invoker]");
+    if (setInvoker) {
+      setActiveInvoker(setInvoker.dataset.setInvoker);
+      return;
+    }
+
+    const availabilityToggle = event.target.closest("[data-toggle-card-availability]");
+    if (availabilityToggle) {
+      toggleCardAvailabilityFromButton(availabilityToggle);
+      return;
+    }
+
+    const editCard = event.target.closest("[data-edit-card]");
+    if (editCard) {
+      beginCardEdit(editCard);
+      return;
+    }
+
+    const saveCard = event.target.closest("[data-save-card-edit]");
+    if (saveCard) {
+      saveCardEdit(saveCard);
+      return;
+    }
+
+    const resetCard = event.target.closest("[data-reset-card-edit]");
+    if (resetCard) {
+      resetCardEdit(resetCard);
       return;
     }
 
