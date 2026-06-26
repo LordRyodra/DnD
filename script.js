@@ -373,22 +373,84 @@ function renderResources() {
   }).join("");
 }
 
+function safeText(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function flipCardTemplate({ index, group, tag, name, icon, mini, tone, details }) {
+  const safeGroup = safeText(group || "archive");
+  const safeTone = safeText(tone || "archive");
+  const detailRows = (details || []).map(([label, value]) => `
+    <div class="flip-detail-row">
+      <span>${safeText(label)}</span>
+      <strong>${safeText(value)}</strong>
+    </div>
+  `).join("");
+
+  return `
+    <article class="archive-flip-card card-tone-${safeTone}" data-flip-card tabindex="0" role="button" aria-label="Open ${safeText(name)} card" data-card-group="${safeGroup}" data-card-index="${index}">
+      <div class="archive-flip-inner">
+        <section class="archive-card-face archive-card-front">
+          <div class="archive-card-art" aria-hidden="true"><span>${safeText(icon || "✦")}</span></div>
+          <div class="archive-card-front-copy">
+            <small>${safeText(tag || "Archive Card")}</small>
+            <h3>${safeText(name)}</h3>
+            <p>${safeText(mini || "Click to reveal details.")}</p>
+          </div>
+        </section>
+        <section class="archive-card-face archive-card-back">
+          <button class="card-close" type="button" data-close-card aria-label="Close card">×</button>
+          <small>${safeText(tag || "Archive Card")}</small>
+          <h3>${safeText(name)}</h3>
+          <div class="flip-detail-stack">${detailRows}</div>
+        </section>
+      </div>
+    </article>
+  `;
+}
+
+function closeExpandedCards() {
+  document.querySelectorAll("[data-flip-card].is-expanded").forEach((card) => card.classList.remove("is-expanded"));
+  document.body.classList.remove("card-overlay-active");
+}
+
+function openFlipCard(card) {
+  if (!card) return;
+  document.querySelectorAll("[data-flip-card].is-expanded").forEach((openCard) => {
+    if (openCard !== card) openCard.classList.remove("is-expanded");
+  });
+  card.classList.add("is-expanded");
+  document.body.classList.add("card-overlay-active");
+}
+
 function renderActions(targetId) {
   const container = document.querySelector(targetId);
   if (!container) return;
-  container.innerHTML = DATA.attacks.map((attack) => `
-    <article class="action-card">
-      <div>
-        <span>${attack.tag}</span>
-        <h3>${attack.name}</h3>
-      </div>
-      <dl>
-        <div><dt>To Hit</dt><dd>${formatModifier(getAttackBonus(attack))}</dd></div>
-        <div><dt>Damage</dt><dd>${getAttackDamage(attack)}</dd></div>
-      </dl>
-      <p>${attack.note}</p>
-    </article>
-  `).join("");
+  container.classList.add("archive-card-grid", "combat-card-grid");
+  container.innerHTML = DATA.attacks.map((attack, index) => {
+    const toHit = formatModifier(getAttackBonus(attack));
+    const damage = getAttackDamage(attack);
+    const details = [
+      ["To Hit", toHit],
+      ["Damage", damage],
+      ["Ability", `${attack.attackAbility || "STR"}${attack.proficient ? " · prof" : ""}`],
+      ["Use", attack.detail || attack.note || "Combat option."]
+    ];
+    return flipCardTemplate({
+      index,
+      group: "combat",
+      tag: attack.tag,
+      name: attack.name,
+      icon: attack.icon || "⚔",
+      mini: attack.mini || attack.note,
+      tone: "weapon",
+      details
+    });
+  }).join("");
 }
 
 function formatModifier(value) {
@@ -492,20 +554,45 @@ function renderSkills() {
   setText('[data-field="passivePerception"]', getPassivePerception());
 }
 
+function magicDynamicValue(item) {
+  if (item.kind === "spellSave") return getSpellSaveDC();
+  if (item.kind === "spellAttack") return formatModifier(getSpellAttackBonus());
+  if (item.kind === "pactSlots") return `${getResourceValue("pactSlots")} / ${getResource("pactSlots").max} · Level 3`;
+  return item.value || "—";
+}
+
 function renderMagic() {
-  const container = document.querySelector("#magicList");
-  if (!container) return;
-  container.innerHTML = DATA.magic.map((item) => {
-    let value = item.value;
-    if (item.kind === "spellSave") value = getSpellSaveDC();
-    if (item.kind === "spellAttack") value = formatModifier(getSpellAttackBonus());
-    if (item.kind === "pactSlots") value = `${getResourceValue("pactSlots")} / ${getResource("pactSlots").max} · Level 3`;
-    return `
+  const listContainer = document.querySelector("#magicList");
+  if (listContainer) {
+    listContainer.innerHTML = DATA.magic.map((item) => `
       <div class="magic-row">
         <span>${item.name}</span>
-        <strong>${value}</strong>
+        <strong>${magicDynamicValue(item)}</strong>
       </div>
-    `;
+    `).join("");
+  }
+
+  const cardContainer = document.querySelector("#magicCardGrid");
+  if (!cardContainer) return;
+  cardContainer.innerHTML = (DATA.magicCards || []).map((card, index) => {
+    const details = [
+      ["Type", card.type || card.tag || "Magic"],
+      ["Cost", card.cost || "—"],
+      ["Range", card.range || "—"],
+      ["Duration", card.duration || "—"],
+      [card.kind === "spellSave" ? "Save DC" : card.kind === "spellAttack" ? "Spell Attack" : "Archive", card.kind ? magicDynamicValue(card) : "Ryo Layer"],
+      ["Details", card.detail || "Prepared archive entry."]
+    ];
+    return flipCardTemplate({
+      index,
+      group: "magic",
+      tag: card.tag,
+      name: card.name,
+      icon: card.icon || "✦",
+      mini: card.mini,
+      tone: card.type?.toLowerCase().includes("incubus") || card.name?.toLowerCase().includes("incubus") ? "incubus" : "magic",
+      details
+    });
   }).join("");
 }
 
@@ -787,6 +874,23 @@ function bindEvents() {
     const tab = event.target.closest("[data-tab]");
     if (tab) setActiveTab(tab.dataset.tab);
 
+    const closeCard = event.target.closest("[data-close-card]");
+    if (closeCard) {
+      closeExpandedCards();
+      return;
+    }
+
+    const flipCard = event.target.closest("[data-flip-card]");
+    if (flipCard) {
+      openFlipCard(flipCard);
+      return;
+    }
+
+    if (document.body.classList.contains("card-overlay-active") && !event.target.closest("[data-flip-card]")) {
+      closeExpandedCards();
+      return;
+    }
+
     const formAction = event.target.closest("[data-form-action]");
     if (formAction) {
       const action = formAction.dataset.formAction;
@@ -889,6 +993,15 @@ function bindEvents() {
   document.querySelector("#quickNotes")?.addEventListener("input", (event) => {
     state.notes = event.target.value;
     saveState();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeExpandedCards();
+    const card = event.target.closest?.("[data-flip-card]");
+    if (card && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault();
+      openFlipCard(card);
+    }
   });
 }
 

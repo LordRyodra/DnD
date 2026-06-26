@@ -2585,3 +2585,272 @@ textarea:focus {
   }
 }
 .condition-card.seal-concentration.is-active .condition-rune { color: #86ddff; border-color: #86ddff; }
+
+/* V12: flip cards for Combat and Magic. Front is image/name/mini use; click opens a larger card with full details. */
+.archive-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+
+.combat-card-grid,
+.magic-card-grid {
+  margin-top: 16px;
+}
+
+.magic-card-panel {
+  grid-column: 1 / -1;
+}
+
+.archive-flip-card {
+  position: relative;
+  min-height: 292px;
+  perspective: 1200px;
+  cursor: pointer;
+  outline: none;
+  isolation: isolate;
+}
+
+.archive-flip-card:focus-visible .archive-flip-inner,
+.archive-flip-card:hover .archive-flip-inner {
+  border-color: color-mix(in srgb, var(--accent) 54%, var(--panel-border));
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--accent) 15%, transparent),
+    inset 0 0 34px rgba(0,0,0,0.54);
+}
+
+.archive-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  transform-style: preserve-3d;
+  transition: transform 520ms ease, border-color 220ms ease, box-shadow 220ms ease;
+  border: 1px solid rgba(190,153,83,0.28);
+  background:
+    linear-gradient(180deg, rgba(2, 14, 12, 0.94), rgba(1, 7, 6, 0.98)),
+    radial-gradient(circle at 50% 0, color-mix(in srgb, var(--accent) 14%, transparent), transparent 58%);
+  box-shadow:
+    inset 0 0 32px rgba(0,0,0,0.54),
+    0 18px 42px rgba(0,0,0,0.22);
+}
+
+.archive-card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.archive-card-front {
+  display: grid;
+  grid-template-rows: minmax(150px, 1fr) auto;
+}
+
+.archive-card-front::after,
+.archive-card-back::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(240,216,154,0.12);
+  pointer-events: none;
+}
+
+.archive-card-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+  background:
+    radial-gradient(circle at 50% 44%, color-mix(in srgb, var(--accent) 48%, transparent), transparent 0 10%, rgba(0,0,0,0.06) 11% 18%, transparent 19%),
+    conic-gradient(from 35deg, transparent, color-mix(in srgb, var(--accent) 26%, transparent), transparent 28%, color-mix(in srgb, var(--gold) 14%, transparent), transparent 58%, color-mix(in srgb, var(--accent) 18%, transparent), transparent),
+    linear-gradient(145deg, rgba(255,255,255,0.035), transparent 55%);
+  border-bottom: 1px solid rgba(190,153,83,0.18);
+}
+
+.archive-card-art::before {
+  content: "";
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 46%, transparent);
+  box-shadow:
+    0 0 34px color-mix(in srgb, var(--accent) 22%, transparent),
+    inset 0 0 22px rgba(0,0,0,0.58);
+  animation: archiveCardPulse 4.8s ease-in-out infinite;
+}
+
+.archive-card-art span {
+  position: absolute;
+  color: var(--gold-soft);
+  font-size: 3.4rem;
+  line-height: 1;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 52%, transparent);
+}
+
+.archive-card-front-copy {
+  position: relative;
+  z-index: 1;
+  padding: 16px 18px 18px;
+}
+
+.archive-card-front-copy small,
+.archive-card-back > small {
+  display: block;
+  color: var(--accent-2);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.72rem;
+}
+
+.archive-card-front-copy h3,
+.archive-card-back h3 {
+  margin: 5px 0 8px;
+  color: var(--gold-soft);
+  font-weight: 400;
+  font-size: 1.28rem;
+  line-height: 1.05;
+}
+
+.archive-card-front-copy p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.archive-card-back {
+  transform: rotateY(180deg);
+  padding: 24px;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  background:
+    linear-gradient(180deg, rgba(2, 13, 12, 0.98), rgba(0, 3, 3, 0.98)),
+    radial-gradient(circle at 50% 0, color-mix(in srgb, var(--accent) 18%, transparent), transparent 64%);
+}
+
+.flip-detail-stack {
+  display: grid;
+  gap: 10px;
+  overflow: auto;
+  padding: 6px 4px 2px 0;
+}
+
+.flip-detail-row {
+  display: grid;
+  grid-template-columns: minmax(86px, 0.32fr) 1fr;
+  gap: 12px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(190,153,83,0.16);
+}
+
+.flip-detail-row span {
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+}
+
+.flip-detail-row strong {
+  color: var(--text);
+  font-weight: 400;
+  line-height: 1.42;
+}
+
+.card-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(240,216,154,0.28);
+  background: rgba(0,0,0,0.34);
+  color: var(--gold-soft);
+  cursor: pointer;
+}
+
+.card-tone-weapon .archive-card-art {
+  background:
+    radial-gradient(circle at 50% 44%, rgba(240,216,154,0.24), transparent 0 10%, rgba(0,0,0,0.06) 11% 18%, transparent 19%),
+    conic-gradient(from 35deg, transparent, color-mix(in srgb, var(--accent) 20%, transparent), transparent 28%, rgba(200,167,106,0.26), transparent 58%, color-mix(in srgb, var(--accent) 14%, transparent), transparent),
+    linear-gradient(145deg, rgba(255,255,255,0.035), transparent 55%);
+}
+
+.card-tone-magic .archive-card-art {
+  background:
+    radial-gradient(circle at 50% 44%, color-mix(in srgb, var(--accent) 50%, transparent), transparent 0 10%, rgba(0,0,0,0.08) 11% 18%, transparent 19%),
+    conic-gradient(from 10deg, transparent, color-mix(in srgb, var(--accent) 34%, transparent), transparent 30%, color-mix(in srgb, var(--gold) 18%, transparent), transparent 62%, color-mix(in srgb, var(--accent-2) 22%, transparent), transparent),
+    radial-gradient(circle at center, rgba(255,255,255,0.04), transparent 72%);
+}
+
+.card-tone-incubus .archive-card-art {
+  background:
+    radial-gradient(circle at 50% 44%, rgba(180,50,255,0.34), transparent 0 10%, rgba(0,0,0,0.08) 11% 18%, transparent 19%),
+    conic-gradient(from 10deg, transparent, rgba(180,50,255,0.28), transparent 30%, rgba(235,70,110,0.24), transparent 62%, rgba(120,30,160,0.22), transparent),
+    radial-gradient(circle at center, rgba(255,255,255,0.04), transparent 72%);
+}
+
+.archive-flip-card.is-expanded {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: min(820px, calc(100vw - 32px));
+  height: min(620px, calc(100vh - 32px));
+  min-height: 0;
+  transform: translate(-50%, -50%);
+  z-index: 420;
+  cursor: default;
+}
+
+.archive-flip-card.is-expanded .archive-flip-inner {
+  min-height: 0;
+  transform: rotateY(180deg);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--panel-border));
+  box-shadow:
+    0 0 0 1px rgba(240,216,154,0.08),
+    0 40px 120px rgba(0,0,0,0.75),
+    0 0 54px color-mix(in srgb, var(--accent) 22%, transparent),
+    inset 0 0 40px rgba(0,0,0,0.64);
+}
+
+body.card-overlay-active::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 360;
+  background:
+    radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 32%),
+    rgba(0,0,0,0.64);
+  pointer-events: none;
+  backdrop-filter: blur(2px);
+}
+
+@keyframes archiveCardPulse {
+  0%, 100% { transform: scale(1); opacity: 0.82; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+@media (max-width: 760px) {
+  .archive-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .archive-flip-card {
+    min-height: 248px;
+  }
+
+  .archive-flip-card.is-expanded {
+    width: calc(100vw - 18px);
+    height: calc(100vh - 18px);
+  }
+
+  .flip-detail-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}

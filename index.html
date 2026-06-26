@@ -250,46 +250,17 @@
     </section>
 
     <section class="tab-panel" data-panel="magic">
-      <div class="panel-grid magic-grid">
-        <article class="panel magic-core-panel">
-          <div class="panel-kicker">Pact Magic</div>
-          <h2>Available Magic</h2>
-          <div class="magic-list" id="magicList"></div>
-        </article>
-
-        <article class="panel magic-spell-panel">
-          <div class="panel-kicker">Spells</div>
-          <h2>Spellbook Layer</h2>
-          <div class="magic-card-list">
-            <article><span>3rd Level</span><strong>Fireball</strong><small>Known pact spell.</small></article>
-            <article><span>3rd Level</span><strong>Counterspell</strong><small>Planned / selected spell slot candidate.</small></article>
-            <article><span>1st Level</span><strong>Hex</strong><small>Target curse and condition seal.</small></article>
+      <div class="panel-grid magic-grid card-tab-grid">
+        <article class="panel magic-card-panel">
+          <div class="panel-title-row">
+            <div>
+              <div class="panel-kicker">Spellbook Layer</div>
+              <h2>Magic Cards</h2>
+            </div>
+            <span class="edit-chip">click to reveal</span>
           </div>
-        </article>
-
-        <article class="panel magic-invocation-panel">
-          <div class="panel-kicker">Pact of the Invoker</div>
-          <h2>Invocations</h2>
-          <div class="feature-stack feature-tooltip-stack">
-            <details open>
-              <summary><span>Always</span><strong>Mask of Many Faces</strong></summary>
-              <p>At-will Disguise Self.</p>
-            </details>
-            <details>
-              <summary><span>Homebrew</span><strong>Heart of the Pact</strong></summary>
-              <p>Pact of the Tome cantrip layer: Guidance, Mage Hand, Resistance.</p>
-            </details>
-            <details>
-              <summary><span>Invoker Pool</span><strong>Agonizing Blast / Beast Speech / Eyes of the Rune Keeper</strong></summary>
-              <p>One active at a time; switching requires ritual / rest logic.</p>
-            </details>
-          </div>
-        </article>
-
-        <article class="panel magic-incubus-panel">
-          <div class="panel-kicker">Heritage Magic</div>
-          <h2>Incubus Magic</h2>
-          <p class="panel-copy">Reserved for active and dormant incubus abilities, stage interaction and future life-energy mechanics.</p>
+          <p class="panel-copy">Front: image, name and short use. Click a card to let it turn into a larger archive card with the full rules/details on the back.</p>
+          <div class="archive-card-grid magic-card-grid" id="magicCardGrid"></div>
         </article>
       </div>
     </section>

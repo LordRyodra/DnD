@@ -54,11 +54,11 @@ window.DRAGON_ARCHIVE_DATA = {
   ],
 
   attacks: [
-    { name: "Greataxe of Ragna", tag: "Primary Weapon", attackAbility: "STR", proficient: true, damageDie: "1d12", damageAbility: "STR", damageType: "slashing", note: "Great Weapon Master anchor." },
-    { name: "Eldritch Blast", tag: "Pact Attack", attackAbility: "CHA", proficient: true, beams: 2, damageDie: "1d10", damageAbility: "CHA", damageType: "force", note: "Very frequent session action." },
-    { name: "Green-Flame Blade", tag: "Blade Cantrip", attackAbility: "STR", proficient: true, damageDie: "1d12", damageAbility: "STR", damageType: "slash", extra: "+ 1d8 fire · + 1d8 CHA fire to nearby target", note: "Useful against clustered enemies." },
-    { name: "Oni-san", tag: "Backup Weapon", attackAbility: "STR", proficient: true, damageDie: "1d8", damageAbility: "STR", damageType: "bludgeoning", note: "Secondary physical option." },
-    { name: "Dagger", tag: "Light Weapon", attackAbility: "STR", proficient: true, damageDie: "1d4", damageAbility: "STR", damageType: "piercing", note: "Close backup option." }
+    { name: "Greataxe of Ragna", tag: "Primary Weapon", icon: "⚔", mini: "Heavy melee anchor.", attackAbility: "STR", proficient: true, damageDie: "1d12", damageAbility: "STR", damageType: "slashing", note: "Great Weapon Master anchor.", detail: "Primary melee weapon. Use with Great Weapon Master when advantage or low enemy AC makes the risk worth it." },
+    { name: "Eldritch Blast", tag: "Pact Attack", icon: "✦", mini: "Reliable ranged pact strike.", attackAbility: "CHA", proficient: true, beams: 2, damageDie: "1d10", damageAbility: "CHA", damageType: "force", note: "Very frequent session action.", detail: "Two beams at Warlock 5. Strong fallback when melee is unsafe or the target is hard to reach." },
+    { name: "Green-Flame Blade", tag: "Blade Cantrip", icon: "🔥", mini: "Melee hit with jumping fire.", attackAbility: "STR", proficient: true, damageDie: "1d12", damageAbility: "STR", damageType: "slash", extra: "+ 1d8 fire · + 1d8 CHA fire to nearby target", note: "Useful against clustered enemies.", detail: "Best when a second creature stands within 5 feet of the main target. Uses a weapon attack, then fire leaps to a nearby enemy." },
+    { name: "Oni-san", tag: "Backup Weapon", icon: "◆", mini: "Physical backup option.", attackAbility: "STR", proficient: true, damageDie: "1d8", damageAbility: "STR", damageType: "bludgeoning", note: "Secondary physical option.", detail: "Fallback melee option when the greataxe is unavailable or inappropriate." },
+    { name: "Dagger", tag: "Light Weapon", icon: "†", mini: "Small close backup.", attackAbility: "STR", proficient: true, damageDie: "1d4", damageAbility: "STR", damageType: "piercing", note: "Close backup option.", detail: "Light emergency weapon. Not the main plan, but useful when disarmed or constrained." }
   ],
 
   attributes: { STR: 16, DEX: 10, CON: 16, INT: 9, WIS: 16, CHA: 20 },
@@ -87,9 +87,19 @@ window.DRAGON_ARCHIVE_DATA = {
   magic: [
     { name: "Spell Save DC", kind: "spellSave" },
     { name: "Spell Attack", kind: "spellAttack" },
-    { name: "Pact Slots", kind: "pactSlots" },
-    { name: "Invoker", value: "Agonizing Blast · Beast Speech · Eyes of the Rune Keeper" },
-    { name: "Fiend Patron", value: "Pact chain still marked in the archive" }
+    { name: "Pact Slots", kind: "pactSlots" }
+  ],
+
+  magicCards: [
+    { name: "Fireball", tag: "3rd Level", icon: "✹", mini: "Explosive area damage.", kind: "spellSave", type: "Spell", cost: "1 Pact Slot", range: "150 ft", duration: "Instantaneous", detail: "A bright streak detonates into a 20-foot-radius explosion. Creatures in the area make a Dexterity saving throw against Ryo's spell save DC." },
+    { name: "Counterspell", tag: "3rd Level", icon: "◇", mini: "Interrupt enemy magic.", type: "Reaction Spell", cost: "1 Pact Slot", range: "60 ft", duration: "Instantaneous", detail: "Use as a reaction when a creature casts a spell. Counters 3rd-level spells automatically; higher spells may require a Charisma ability check depending on the spell level." },
+    { name: "Hex", tag: "1st Level", icon: "☾", mini: "Curse and pressure mark.", type: "Concentration Spell", cost: "1 Pact Slot", range: "90 ft", duration: "Concentration", detail: "Marks a creature with a curse. Ryo deals extra necrotic damage when he hits the target and can choose one ability for disadvantage on ability checks." },
+    { name: "Eldritch Blast", tag: "Cantrip", icon: "✦", mini: "Pact force attack.", kind: "spellAttack", type: "Cantrip", cost: "At Will", range: "120 ft", duration: "Instantaneous", detail: "Two force beams at Warlock 5. Each beam uses Ryo's spell attack bonus. With Agonizing Blast, Charisma is added to the damage." },
+    { name: "Green-Flame Blade", tag: "Cantrip", icon: "🔥", mini: "Weapon strike with fire jump.", type: "Blade Cantrip", cost: "At Will", range: "Self / 5 ft", duration: "Instantaneous", detail: "Make a melee weapon attack. On hit, the target takes the weapon damage and fire can leap to a nearby creature." },
+    { name: "Pact of the Invoker", tag: "Pact Boon", icon: "☷", mini: "Invocation switching layer.", type: "Pact System", cost: "Ritual / Rest", range: "Self", duration: "Persistent", detail: "Three invocations are known in the Invoker pool, but only one is active at a time. The active invocation can be switched through the pact ritual / rest logic." },
+    { name: "Mask of Many Faces", tag: "Invocation", icon: "◑", mini: "At-will disguise layer.", type: "Eldritch Invocation", cost: "At Will", range: "Self", duration: "1 hour", detail: "Allows Ryo to cast Disguise Self without expending a spell slot." },
+    { name: "Heart of the Pact", tag: "Homebrew Invocation", icon: "✧", mini: "Tome cantrip core.", type: "Homebrew Invocation", cost: "Passive", range: "Self", duration: "Persistent", detail: "Grants the Pact of the Tome cantrip layer: Guidance, Mage Hand and Resistance." },
+    { name: "Incubus Magic", tag: "Heritage", icon: "◆", mini: "Dormant instinctive magic.", type: "Heritage Magic", cost: "Unknown", range: "Self / Aura", duration: "State-based", detail: "Reserved for active and dormant incubus abilities, stage interaction and future life-energy mechanics." }
   ],
 
   identity: [
