@@ -3057,3 +3057,207 @@ body.card-overlay-active::after {
     grid-template-columns: 1fr;
   }
 }
+
+/* V14: Magic card management, invocation split, and tighter panel/card rhythm. */
+.status-v1-grid,
+.panel-grid.magic-grid,
+.panel-grid.combat-grid,
+.panel-grid.character-grid {
+  gap: clamp(10px, 1.25vw, 16px);
+}
+
+.panel-grid.magic-grid {
+  align-items: start;
+}
+
+.magic-card-panel {
+  min-height: auto;
+}
+
+.magic-category-stack {
+  gap: 12px;
+}
+
+.magic-category-section {
+  padding: 12px;
+}
+
+.magic-category-header {
+  align-items: start;
+}
+
+.magic-category-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.magic-category-actions span,
+.magic-category-actions button {
+  border: 1px solid rgba(190,153,83,0.26);
+  background: rgba(0,0,0,0.25);
+  color: var(--gold-soft);
+  padding: 7px 10px;
+  font-family: inherit;
+}
+
+.magic-category-actions button {
+  cursor: pointer;
+}
+
+.magic-category-actions button:hover {
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--gold));
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.categorized-card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+  gap: 10px;
+}
+
+.archive-flip-card {
+  min-height: 258px;
+}
+
+.archive-card-front {
+  grid-template-rows: minmax(124px, 1fr) auto;
+}
+
+.archive-card-art {
+  min-height: 132px;
+}
+
+.archive-card-art::before {
+  width: 96px;
+  height: 96px;
+}
+
+.archive-card-art span {
+  font-size: 3rem;
+}
+
+.archive-card-front-copy {
+  padding: 14px 15px 16px;
+}
+
+.archive-card-front-copy h3,
+.archive-card-back h3 {
+  font-size: 1.16rem;
+}
+
+.invocation-overview {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(280px, 1.3fr);
+  gap: 10px;
+  margin: 12px 0 4px;
+}
+
+.invocation-overview section {
+  border: 1px solid rgba(190,153,83,0.22);
+  background:
+    radial-gradient(circle at 12% 0, color-mix(in srgb, var(--accent) 10%, transparent), transparent 44%),
+    rgba(0,0,0,0.2);
+  padding: 11px;
+}
+
+.invocation-overview h4 {
+  margin: 0 0 8px;
+  color: var(--gold-soft);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+}
+
+.invocation-overview p {
+  margin: 0 0 10px;
+  color: var(--muted);
+  line-height: 1.4;
+  font-size: 0.9rem;
+}
+
+.invocation-sigil-row,
+.invoker-choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.invocation-sigil,
+.invoker-choice {
+  border: 1px solid rgba(190,153,83,0.26);
+  background: rgba(0,0,0,0.26);
+  color: var(--gold-soft);
+  padding: 8px 10px;
+  font-family: inherit;
+}
+
+.invocation-sigil.is-always {
+  color: var(--accent-2);
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--panel-border));
+}
+
+.invoker-choice {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 4px 8px;
+  min-width: 190px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.invoker-choice span {
+  grid-row: span 2;
+  font-size: 1.2rem;
+  color: var(--accent-2);
+}
+
+.invoker-choice strong {
+  color: var(--gold-soft);
+  font-weight: 400;
+}
+
+.invoker-choice small {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+}
+
+.invoker-choice.is-active {
+  border-color: color-mix(in srgb, var(--accent) 56%, var(--gold));
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--accent) 18%, transparent),
+    inset 0 0 20px rgba(0,0,0,0.44);
+}
+
+.card-delete-button {
+  border-color: rgba(190,70,70,0.45) !important;
+  color: #f0b0a0 !important;
+}
+
+.card-delete-button:hover {
+  border-color: rgba(240,90,70,0.85) !important;
+  box-shadow: 0 0 14px rgba(200,50,40,0.18) !important;
+}
+
+.demonic-temp-orb strong small {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-left: 2px;
+  font-weight: 400;
+}
+
+#darkOneBlessingButton {
+  color: var(--accent-2);
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--panel-border));
+}
+
+@media (max-width: 880px) {
+  .invocation-overview {
+    grid-template-columns: 1fr;
+  }
+}

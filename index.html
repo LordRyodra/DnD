@@ -83,7 +83,7 @@
             <div class="vital-side status-vital-side">
               <div class="temp-row status-temp-row">
                 <div class="mini-orb demonic-temp-orb" id="tempHpOrb">
-                  <strong id="tempHpValue">0</strong>
+                  <strong><span id="tempHpValue">0</span><small id="tempHpMax">/10</small></strong>
                   <span>Temp HP</span>
                 </div>
                 <div class="quick-controls compact-controls temp-controls" aria-label="Temporary HP controls">
@@ -104,6 +104,7 @@
                 <button type="button" data-apply-hp="damage">Damage</button>
                 <button type="button" data-apply-hp="heal">Heal</button>
                 <button type="button" data-apply-hp="temp">Set Temp</button>
+                <button type="button" data-apply-hp="darkOne" id="darkOneBlessingButton">Dark One +10</button>
               </div>
             </div>
           </div>
@@ -257,9 +258,9 @@
               <div class="panel-kicker">Spellbook Layer</div>
               <h2>Magic Cards</h2>
             </div>
-            <span class="edit-chip">click / edit / sort</span>
+            <span class="edit-chip">click / edit / add / delete</span>
           </div>
-          <p class="panel-copy">Cards are grouped by magic layer. Bright cards are prepared/active, muted cards are dormant or not prepared. Click a card to reveal details; use Edit on the back to change its text in this browser.</p>
+          <p class="panel-copy">Cards are grouped by magic layer. Bright cards are prepared/active, muted cards are dormant or not prepared. Add, edit, prepare/unprepare or delete cards directly in this browser. Invocations are split into always-active sigils and the Pact of the Invoker pool.</p>
           <div class="magic-category-stack" id="magicCardGrid"></div>
         </article>
       </div>

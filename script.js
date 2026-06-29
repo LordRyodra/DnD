@@ -11,6 +11,8 @@ const DEFAULT_STATE = {
   attributes: { ...DATA.attributes },
   activeInvokerInvocation: "agonizing-blast",
   cardAvailability: {},
+  customCards: { magic: [] },
+  deletedCards: { magic: [] },
   cardOverrides: { combat: {}, magic: {} },
   resources: Object.fromEntries(DATA.resources.map((resource) => [resource.id, resource.current]))
 };
@@ -43,6 +45,12 @@ function loadState() {
       cardAvailability: {
         ...DEFAULT_STATE.cardAvailability,
         ...(stored.cardAvailability || {})
+      },
+      customCards: {
+        magic: Array.isArray(stored.customCards?.magic) ? stored.customCards.magic : []
+      },
+      deletedCards: {
+        magic: Array.isArray(stored.deletedCards?.magic) ? stored.deletedCards.magic : []
       },
       cardOverrides: {
         combat: { ...(stored.cardOverrides?.combat || {}) },
@@ -115,16 +123,28 @@ function getResource(id) {
   return DATA.resources.find((resource) => resource.id === id);
 }
 
+function getDarkOnesBlessingMax() {
+  const warlockLevel = Number(DATA.character.warlockLevel || 0);
+  return Math.max(0, warlockLevel + getAbilityMod("CHA"));
+}
+
+function getResourceMax(resourceOrId) {
+  const resource = typeof resourceOrId === "string" ? getResource(resourceOrId) : resourceOrId;
+  if (!resource) return 0;
+  if (resource.id === "tempHp") return getDarkOnesBlessingMax();
+  return resource.max;
+}
+
 function getResourceValue(id) {
   const resource = getResource(id);
   if (!resource) return 0;
-  return clamp(state.resources[id] ?? resource.current, resource.min, resource.max);
+  return clamp(state.resources[id] ?? resource.current, resource.min, getResourceMax(resource));
 }
 
 function setResourceValue(id, value) {
   const resource = getResource(id);
   if (!resource) return;
-  state.resources[id] = clamp(value, resource.min, resource.max);
+  state.resources[id] = clamp(value, resource.min, getResourceMax(resource));
   saveState();
   render();
 }
@@ -298,6 +318,8 @@ function renderVitalCore() {
   setText("#largeHpValue", hp);
   setText("#largeHpMax", `/${hpMax}`);
   setText("#tempHpValue", tempHp);
+  setText("#tempHpMax", `/${getDarkOnesBlessingMax()}`);
+  setText("#darkOneBlessingButton", `Dark One +${getDarkOnesBlessingMax()}`);
 
   const hpRing = document.querySelector("#largeHpRing");
   if (hpRing) {
@@ -356,9 +378,10 @@ function renderResources() {
 
   container.innerHTML = DATA.resources.map((resource) => {
     const value = getResourceValue(resource.id);
-    const percent = resource.max ? Math.round((value / resource.max) * 100) : 0;
+    const maxValue = getResourceMax(resource);
+    const percent = maxValue ? Math.round((value / maxValue) * 100) : 0;
     const isToggle = resource.type === "toggle";
-    const display = isToggle ? (value ? "Active" : "Dormant") : `${value} / ${resource.max}`;
+    const display = isToggle ? (value ? "Active" : "Dormant") : `${value} / ${maxValue}`;
     const bar = isToggle ? (value ? 100 : 0) : percent;
 
     return `
@@ -453,7 +476,8 @@ function cardEditFields(card) {
     ["type", "Type"],
     ["cost", "Cost"],
     ["range", "Range"],
-    ["duration", "Duration"]
+    ["duration", "Duration"],
+    ["category", "Category"]
   ];
   const inputFields = fields.map(([key, label]) => `
     <label><span>${safeText(label)}</span><input data-card-edit-field="${safeText(key)}" value="${safeText(card[key] || "")}" /></label>
@@ -521,7 +545,8 @@ function flipCardTemplate({ index, group, card, tag, name, icon, mini, tone, det
           <div class="flip-detail-stack">${detailRows}</div>
           <div class="card-back-actions">
             ${availabilityButton}
-            <button type="button" class="card-edit-button" data-edit-card> Edit</button>
+            <button type="button" class="card-edit-button" data-edit-card>Edit</button>
+            ${safeGroup === "magic" ? `<button type="button" class="card-delete-button" data-delete-card>Delete</button>` : ""}
           </div>
           ${cardEditFields(sourceCard)}
         </section>
@@ -672,8 +697,42 @@ function renderSkills() {
 function magicDynamicValue(item) {
   if (item.kind === "spellSave") return getSpellSaveDC();
   if (item.kind === "spellAttack") return formatModifier(getSpellAttackBonus());
-  if (item.kind === "pactSlots") return `${getResourceValue("pactSlots")} / ${getResource("pactSlots").max} · Level 3`;
+  if (item.kind === "pactSlots") return `${getResourceValue("pactSlots")} / ${getResourceMax("pactSlots")} · Level 3`;
   return item.value || "—";
+}
+
+function allMagicCardsRaw() {
+  const deleted = new Set(state.deletedCards?.magic || []);
+  return [
+    ...(DATA.magicCards || []),
+    ...(state.customCards?.magic || [])
+  ].filter((card, index) => !deleted.has(cardId(card, index, "magic")) && !deleted.has(card.id));
+}
+
+function allMagicCardsMerged() {
+  return allMagicCardsRaw().map((card, index) => mergedCard(card, "magic", index));
+}
+
+function invocationOverview(cards) {
+  const invocations = cards.filter((card) => card.category === "invocations");
+  const always = invocations.filter((card) => card.alwaysActive);
+  const pool = invocations.filter((card) => card.invokerPool);
+
+  const alwaysHtml = always.map((card) => `<span class="invocation-sigil is-always">${safeText(card.icon || "✧")} ${safeText(card.name)}</span>`).join("");
+  const poolHtml = pool.map((card) => `
+    <button type="button" class="invoker-choice ${state.activeInvokerInvocation === card.id ? "is-active" : ""}" data-set-invoker="${safeText(card.id)}">
+      <span>${safeText(card.icon || "✦")}</span>
+      <strong>${safeText(card.name)}</strong>
+      <small>${state.activeInvokerInvocation === card.id ? "active" : "available"}</small>
+    </button>
+  `).join("");
+
+  return `
+    <div class="invocation-overview">
+      <section><h4>Always Active</h4><div class="invocation-sigil-row">${alwaysHtml}</div></section>
+      <section><h4>Pact of the Invoker</h4><p>One of these three is active. Switching represents the 10-minute ritual / long-rest refresh layer.</p><div class="invoker-choice-row">${poolHtml}</div></section>
+    </div>
+  `;
 }
 
 function renderMagic() {
@@ -697,15 +756,16 @@ function renderMagic() {
     { id: "incubus-magic", title: "Incubus Magic", subtitle: "Heritage magic." }
   ];
 
-  const cards = (DATA.magicCards || []).map((card, index) => mergedCard(card, "magic", index));
+  const cards = allMagicCardsMerged();
 
   cardContainer.innerHTML = categories.map((category) => {
     const categoryCards = cards.filter((card) => card.category === category.id);
     if (!categoryCards.length) return "";
 
     const activeCount = categoryCards.filter((card) => isCardPrepared(card)).length;
+    const categoryTools = category.id === "invocations" ? invocationOverview(cards) : "";
     const cardHtml = categoryCards.map((card) => {
-      const originalIndex = (DATA.magicCards || []).findIndex((item) => cardId(item, 0, "magic") === card.id || item.id === card.id);
+      const originalIndex = allMagicCardsRaw().findIndex((item) => cardId(item, 0, "magic") === card.id || item.id === card.id);
       const details = [
         ["Type", card.type || card.tag || "Magic"],
         ["Cost", card.cost || "—"],
@@ -729,8 +789,12 @@ function renderMagic() {
             <div class="panel-kicker">${safeText(category.title)}</div>
             <h3>${safeText(category.subtitle || "")}</h3>
           </div>
-          <span>${activeCount} / ${categoryCards.length} active</span>
+          <div class="magic-category-actions">
+            <span>${activeCount} / ${categoryCards.length} active</span>
+            <button type="button" data-add-magic-card="${safeText(category.id)}">+ Add Card</button>
+          </div>
         </header>
+        ${categoryTools}
         <div class="archive-card-grid magic-card-grid categorized-card-grid">${cardHtml}</div>
       </section>
     `;
@@ -790,7 +854,7 @@ function renderActiveConditions() {
       id: "rage",
       rune: "♨",
       title: "Rage",
-      text: state.form === "rage" ? "Draconic pressure is active." : `${getResourceValue("rage")} / ${getResource("rage").max} uses remain.`,
+      text: state.form === "rage" ? "Draconic pressure is active." : `${getResourceValue("rage")} / ${getResourceMax("rage")} uses remain.`,
       active: state.form === "rage"
     },
     {
@@ -881,7 +945,7 @@ function updatePortrait(src) {
 function renderManifestationControls() {
   const stage = getIncubusStage();
   const rageValue = getResourceValue("rage");
-  const rageMax = getResource("rage").max;
+  const rageMax = getResourceMax("rage");
 
   setText("#rageChargeText", `${rageValue} / ${rageMax}`);
   setText("#incubusStageText", stage ? `stage ${stage}` : "stage 0");
@@ -907,8 +971,8 @@ function renderManifestation() {
 
   setText("#manifestationLabel", `${getFormLabel()} · ${getDamageLabel(damage)}`);
   setText("#manifestationNote", getManifestationNote());
-  setText("#pactSlotReadout", `${getResourceValue("pactSlots")} / ${getResource("pactSlots").max}`);
-  setText("#rageReadout", `${getResourceValue("rage")} / ${getResource("rage").max}`);
+  setText("#pactSlotReadout", `${getResourceValue("pactSlots")} / ${getResourceMax("pactSlots")}`);
+  setText("#rageReadout", `${getResourceValue("rage")} / ${getResourceMax("rage")}`);
   setText("#hexReadout", getResourceValue("hex") ? "Active" : "Dormant");
   setText("#concentrationReadout", getResourceValue("concentration") ? "Active" : "Dormant");
 
@@ -963,7 +1027,7 @@ function setActiveTab(tabName) {
 function setResourceSilently(id, value) {
   const resource = getResource(id);
   if (!resource) return;
-  state.resources[id] = clamp(value, resource.min, resource.max);
+  state.resources[id] = clamp(value, resource.min, getResourceMax(resource));
 }
 
 function applyDamage(amount) {
@@ -977,7 +1041,7 @@ function applyDamage(amount) {
 function applyBulkHp(mode) {
   const input = document.querySelector("#hpAmountInput");
   const amount = clamp(Number(input?.value || 0), 0, 999);
-  if (!amount && mode !== "temp") return;
+  if (!amount && mode !== "temp" && mode !== "darkOne") return;
 
   if (mode === "damage") applyDamage(amount);
   if (mode === "heal") {
@@ -985,6 +1049,7 @@ function applyBulkHp(mode) {
     if (getResourceValue("hp") > 0) state.deathSaves = { successes: 0, failures: 0 };
   }
   if (mode === "temp") setResourceSilently("tempHp", amount);
+  if (mode === "darkOne") setResourceSilently("tempHp", getDarkOnesBlessingMax());
 
   if (input) input.value = "";
   saveState();
@@ -1000,7 +1065,7 @@ function shortRest() {
 
 function longRest() {
   DATA.resources.forEach((resource) => {
-    if (["hp", "pactSlots", "rage"].includes(resource.id)) state.resources[resource.id] = resource.max;
+    if (["hp", "pactSlots", "rage"].includes(resource.id)) state.resources[resource.id] = getResourceMax(resource);
     if (["tempHp", "hex", "concentration", "exhaustion"].includes(resource.id)) state.resources[resource.id] = resource.min;
   });
   state.deathSaves = { successes: 0, failures: 0 };
@@ -1011,7 +1076,7 @@ function longRest() {
 }
 
 function baseCardById(group, id, index) {
-  const list = group === "magic" ? (DATA.magicCards || []) : group === "combat" ? (DATA.attacks || []) : [];
+  const list = group === "magic" ? allMagicCardsRaw() : group === "combat" ? (DATA.attacks || []) : [];
   return list.find((card, cardIndex) => cardId(card, cardIndex, group) === id || card.id === id) || list[Number(index)] || null;
 }
 
@@ -1031,7 +1096,7 @@ function toggleCardAvailabilityFromButton(button) {
 }
 
 function setActiveInvoker(id) {
-  const card = (DATA.magicCards || []).find((item) => item.id === id && item.invokerPool);
+  const card = allMagicCardsRaw().find((item) => item.id === id && item.invokerPool);
   if (!card) return;
   state.activeInvokerInvocation = id;
   saveState();
@@ -1077,10 +1142,67 @@ function resetCardEdit(button) {
   openFlipCard(document.querySelector(`[data-flip-card][data-card-group="${CSS.escape(group)}"][data-card-id="${CSS.escape(id)}"]`));
 }
 
+function addMagicCard(category) {
+  const id = `custom-${category || "magic"}-${Date.now()}`;
+  const card = {
+    id,
+    category: category || "warlock-spells",
+    name: "New Archive Card",
+    tag: "Custom",
+    icon: "✦",
+    mini: "Click Edit to define this card.",
+    type: "Custom Magic",
+    cost: "—",
+    range: "—",
+    duration: "—",
+    prepared: true,
+    detail: "Write the full rules text here."
+  };
+  state.customCards.magic = [...(state.customCards.magic || []), card];
+  saveState();
+  render();
+  window.setTimeout(() => openFlipCard(document.querySelector(`[data-flip-card][data-card-group="magic"][data-card-id="${CSS.escape(id)}"]`)), 0);
+}
+
+function deleteCard(button) {
+  const cardElement = button.closest("[data-flip-card]");
+  if (!cardElement) return;
+  const group = cardElement.dataset.cardGroup;
+  const id = cardElement.dataset.cardId;
+  if (group !== "magic" || !id) return;
+
+  const custom = state.customCards?.magic || [];
+  const customIndex = custom.findIndex((card) => card.id === id);
+  if (customIndex >= 0) {
+    custom.splice(customIndex, 1);
+    state.customCards.magic = custom;
+  } else {
+    state.deletedCards.magic = Array.from(new Set([...(state.deletedCards?.magic || []), id]));
+  }
+  if (state.cardOverrides?.magic) delete state.cardOverrides.magic[id];
+  if (state.cardAvailability) delete state.cardAvailability[id];
+  if (state.activeInvokerInvocation === id) state.activeInvokerInvocation = "agonizing-blast";
+  saveState();
+  closeExpandedCards();
+  render();
+}
+
 function bindEvents() {
   document.addEventListener("click", (event) => {
     const tab = event.target.closest("[data-tab]");
     if (tab) setActiveTab(tab.dataset.tab);
+
+    const addMagic = event.target.closest("[data-add-magic-card]");
+    if (addMagic) {
+      addMagicCard(addMagic.dataset.addMagicCard);
+      return;
+    }
+
+    const deleteMagicCard = event.target.closest("[data-delete-card]");
+    if (deleteMagicCard) {
+      deleteCard(deleteMagicCard);
+      return;
+    }
 
     const closeCard = event.target.closest("[data-close-card]");
     if (closeCard) {
