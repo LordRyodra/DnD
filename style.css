@@ -3487,3 +3487,192 @@ body.card-overlay-active::after {
       "notes";
   }
 }
+
+
+/* V17: Combat tab cleanup — question-first layout, no awkward voids. */
+.panel-grid.combat-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-areas:
+    "actions actions actions actions actions actions actions actions actions actions actions actions"
+    "tools tools tools saves saves saves skills skills skills skills skills skills";
+  gap: clamp(10px, 1.25vw, 16px);
+  align-items: start;
+}
+
+.combat-actions-panel { grid-area: actions; }
+.combat-features-panel { grid-area: tools; }
+.combat-saves-panel { grid-area: saves; }
+.combat-skills-panel { grid-area: skills; }
+
+.combat-actions-panel .archive-card-grid {
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+
+.combat-actions-panel .archive-flip-card {
+  min-height: 278px;
+}
+
+.combat-actions-panel h2,
+.combat-features-panel h2,
+.combat-saves-panel h2,
+.combat-skills-panel h2 {
+  margin-bottom: 12px;
+}
+
+.combat-features-panel .feature-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.combat-features-panel details {
+  border: 1px solid rgba(190,153,83,0.16);
+  background: rgba(0,0,0,0.16);
+}
+
+.combat-features-panel details p {
+  margin: 0;
+  padding: 0 14px 14px;
+}
+
+.combat-saves-panel .save-grid {
+  gap: 8px;
+}
+
+.combat-skills-panel .all-skills-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 10px;
+}
+
+.combat-skills-panel .passive-sense {
+  margin-top: 10px;
+}
+
+@media (max-width: 1320px) {
+  .panel-grid.combat-grid {
+    grid-template-areas:
+      "actions actions actions actions actions actions actions actions actions actions actions actions"
+      "tools tools tools tools saves saves saves saves skills skills skills skills";
+  }
+
+  .combat-actions-panel .archive-card-grid {
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 1180px) {
+  .panel-grid.combat-grid {
+    grid-template-areas:
+      "actions actions actions actions actions actions actions actions actions actions actions actions"
+      "tools tools tools tools tools tools saves saves saves saves saves saves"
+      "skills skills skills skills skills skills skills skills skills skills skills skills";
+  }
+}
+
+@media (max-width: 820px) {
+  .panel-grid.combat-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "actions"
+      "tools"
+      "saves"
+      "skills";
+  }
+
+  .combat-actions-panel .archive-card-grid,
+  .combat-skills-panel .all-skills-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* V18: Combat layout gap fix — make action cards fill the top row and remove the giant void. */
+.panel-grid.combat-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-areas:
+    "actions actions actions actions actions actions actions actions actions actions actions actions"
+    "tools tools tools saves saves saves skills skills skills skills skills skills";
+  gap: clamp(10px, 1.25vw, 16px);
+  align-items: start;
+}
+
+.combat-actions-panel { 
+  grid-area: actions;
+}
+
+.combat-features-panel { 
+  grid-area: tools;
+}
+
+.combat-saves-panel { 
+  grid-area: saves;
+}
+
+.combat-skills-panel { 
+  grid-area: skills;
+}
+
+.archive-card-grid.combat-card-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+
+.combat-actions-panel .archive-flip-card {
+  min-height: 272px;
+}
+
+.combat-actions-panel,
+.combat-features-panel,
+.combat-saves-panel,
+.combat-skills-panel {
+  min-height: 0;
+}
+
+.combat-skills-panel .all-skills-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 1400px) {
+  .archive-card-grid.combat-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1180px) {
+  .panel-grid.combat-grid {
+    grid-template-areas:
+      "actions actions actions actions actions actions actions actions actions actions actions actions"
+      "tools tools tools tools tools tools saves saves saves saves saves saves"
+      "skills skills skills skills skills skills skills skills skills skills skills skills";
+  }
+
+  .archive-card-grid.combat-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .archive-card-grid.combat-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .panel-grid.combat-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "actions"
+      "tools"
+      "saves"
+      "skills";
+  }
+
+  .archive-card-grid.combat-card-grid,
+  .combat-skills-panel .all-skills-list {
+    grid-template-columns: 1fr;
+  }
+}
