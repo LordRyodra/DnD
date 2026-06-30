@@ -3261,3 +3261,117 @@ body.card-overlay-active::after {
     grid-template-columns: 1fr;
   }
 }
+
+/* V15: Status Tab V2 — ordered by importance, not by character sheet category. */
+.status-v2-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(12px, 1.35vw, 18px);
+  align-items: stretch;
+}
+
+.status-v2-grid > .panel {
+  min-height: 0;
+}
+
+.status-v2-grid .status-core-panel {
+  grid-column: span 6;
+  min-height: 315px;
+}
+
+.status-v2-grid .status-active-row-panel {
+  grid-column: span 4;
+  min-height: 230px;
+}
+
+.status-v2-grid .status-notes-panel {
+  grid-column: 1 / -1;
+  min-height: 250px;
+}
+
+.status-v2-grid .status-notes-panel textarea {
+  min-height: 190px;
+}
+
+.status-v2-grid .status-vital-body {
+  grid-template-columns: minmax(230px, 0.9fr) minmax(270px, 1.1fr);
+  align-items: center;
+  gap: clamp(18px, 2vw, 28px);
+}
+
+.status-v2-grid .status-vital-side {
+  display: grid;
+  gap: 12px;
+  align-content: center;
+}
+
+.status-v2-grid .status-death-panel {
+  display: grid;
+  align-content: center;
+  gap: 12px;
+}
+
+.status-v2-grid .status-death-track,
+.status-v2-grid .death-controls,
+.status-v2-grid .status-toggle-grid,
+.status-v2-grid .recovery-stack {
+  margin-top: 0;
+}
+
+.status-v2-grid .active-condition-list {
+  display: grid;
+  gap: 8px;
+}
+
+.status-v2-grid .condition-card {
+  min-height: 50px;
+  padding: 8px 9px;
+}
+
+.status-v2-grid .session-flags-panel,
+.status-v2-grid .recovery-panel,
+.status-v2-grid .compact-seals {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.status-v2-grid .session-flags-panel .check-row {
+  margin-top: 0;
+}
+
+.status-v2-grid .status-toggle-grid {
+  gap: 8px;
+}
+
+.status-v2-grid .status-exhaustion-block {
+  margin-top: 0;
+}
+
+.status-v2-grid .prominent-rest-actions {
+  margin-top: 2px;
+}
+
+@media (max-width: 1180px) {
+  .status-v2-grid .status-core-panel,
+  .status-v2-grid .status-active-row-panel,
+  .status-v2-grid .status-notes-panel {
+    grid-column: 1 / -1;
+  }
+
+  .status-v2-grid .status-vital-body {
+    grid-template-columns: minmax(220px, 0.7fr) minmax(260px, 1fr);
+  }
+}
+
+@media (max-width: 820px) {
+  .status-v2-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .status-v2-grid .status-vital-body,
+  .status-v2-grid .status-temp-row {
+    grid-template-columns: 1fr;
+  }
+}

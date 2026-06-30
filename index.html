@@ -63,7 +63,7 @@
     </nav>
 
     <section class="tab-panel is-active" data-panel="status">
-      <div class="status-v1-grid">
+      <div class="status-v1-grid status-v2-grid">
         <article class="panel vital-core major-panel status-core-panel">
           <div class="panel-title-row">
             <div>
@@ -143,8 +143,14 @@
           <p id="deathGateText" class="state-description">Balanced between life and death. Success pulls left, failure pulls right.</p>
         </article>
 
-        <article class="panel status-session-panel session-flags-panel">
-          <div class="panel-kicker">Session State</div>
+        <article class="panel status-session-panel status-active-row-panel active-panel compact-seals">
+          <div class="panel-kicker">Active State</div>
+          <h2>Condition Seals</h2>
+          <div class="active-condition-list" id="activeConditionList"></div>
+        </article>
+
+        <article class="panel status-session-panel status-active-row-panel session-flags-panel">
+          <div class="panel-kicker">Active State</div>
           <h2>Session Flags</h2>
           <label class="check-row inspiration-row">
             <span class="focus-icon">◇</span>
@@ -161,14 +167,8 @@
           </div>
         </article>
 
-        <article class="panel status-session-panel active-panel compact-seals">
-          <div class="panel-kicker">Active Conditions</div>
-          <h2>Condition Seals</h2>
-          <div class="active-condition-list" id="activeConditionList"></div>
-        </article>
-
-        <article class="panel status-session-panel recovery-panel">
-          <div class="panel-kicker">Recovery</div>
+        <article class="panel status-session-panel status-active-row-panel recovery-panel">
+          <div class="panel-kicker">Active State</div>
           <h2>Recovery Reserve</h2>
           <div class="recovery-stack">
             <div class="recovery-row"><span>Hit Dice</span><strong>5d8 / 2d12</strong></div>
