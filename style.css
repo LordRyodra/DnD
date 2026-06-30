@@ -3676,3 +3676,94 @@ body.card-overlay-active::after {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* V19: hard reset for Combat layout. No named-area leftovers, no top-row void. */
+.tab-panel[data-panel="combat"] > .panel-grid.combat-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+  grid-template-areas: none !important;
+  grid-auto-flow: row !important;
+  align-items: start !important;
+  gap: clamp(10px, 1.2vw, 16px) !important;
+}
+
+.tab-panel[data-panel="combat"] .combat-actions-panel {
+  grid-area: auto !important;
+  grid-column: 1 / -1 !important;
+  grid-row: auto !important;
+}
+
+.tab-panel[data-panel="combat"] .combat-features-panel {
+  grid-area: auto !important;
+  grid-column: 1 / span 3 !important;
+  grid-row: auto !important;
+}
+
+.tab-panel[data-panel="combat"] .combat-saves-panel {
+  grid-area: auto !important;
+  grid-column: 4 / span 3 !important;
+  grid-row: auto !important;
+}
+
+.tab-panel[data-panel="combat"] .combat-skills-panel {
+  grid-area: auto !important;
+  grid-column: 7 / -1 !important;
+  grid-row: auto !important;
+}
+
+.tab-panel[data-panel="combat"] .archive-card-grid.combat-card-grid {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(150px, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.tab-panel[data-panel="combat"] .combat-actions-panel .archive-flip-card {
+  min-height: 252px !important;
+}
+
+.tab-panel[data-panel="combat"] .combat-features-panel,
+.tab-panel[data-panel="combat"] .combat-saves-panel,
+.tab-panel[data-panel="combat"] .combat-skills-panel {
+  min-height: 0 !important;
+}
+
+.tab-panel[data-panel="combat"] .combat-skills-panel .all-skills-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+@media (max-width: 1180px) {
+  .tab-panel[data-panel="combat"] .combat-features-panel {
+    grid-column: 1 / span 4 !important;
+  }
+
+  .tab-panel[data-panel="combat"] .combat-saves-panel {
+    grid-column: 5 / span 4 !important;
+  }
+
+  .tab-panel[data-panel="combat"] .combat-skills-panel {
+    grid-column: 1 / -1 !important;
+  }
+
+  .tab-panel[data-panel="combat"] .archive-card-grid.combat-card-grid {
+    grid-template-columns: repeat(3, minmax(170px, 1fr)) !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .tab-panel[data-panel="combat"] > .panel-grid.combat-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .tab-panel[data-panel="combat"] .combat-actions-panel,
+  .tab-panel[data-panel="combat"] .combat-features-panel,
+  .tab-panel[data-panel="combat"] .combat-saves-panel,
+  .tab-panel[data-panel="combat"] .combat-skills-panel {
+    grid-column: 1 / -1 !important;
+  }
+
+  .tab-panel[data-panel="combat"] .archive-card-grid.combat-card-grid,
+  .tab-panel[data-panel="combat"] .combat-skills-panel .all-skills-list {
+    grid-template-columns: 1fr !important;
+  }
+}
